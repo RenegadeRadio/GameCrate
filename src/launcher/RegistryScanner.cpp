@@ -55,7 +55,7 @@ void AppendValueEntries(HKEY key, const std::wstring& keyPath, RegistrySnapshot&
         RegistryEntry entry;
         entry.keyPath = keyPath;
         entry.valueName.assign(valueName.c_str(), nameLength);
-        entry.valueType = type;
+        entry.valueType = static_cast<uint32_t>(type);
         entry.data.assign(data.begin(), data.begin() + dataLength);
         snapshot.entries.push_back(std::move(entry));
     }

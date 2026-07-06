@@ -9,7 +9,7 @@ namespace gamecrate {
 struct RegistryEntry {
     std::wstring keyPath;
     std::wstring valueName;
-    DWORD valueType = 0;
+    uint32_t valueType = 0;
     std::vector<uint8_t> data;
 };
 
