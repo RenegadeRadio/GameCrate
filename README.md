@@ -48,14 +48,38 @@ Future versions will add a GUI tray app (v0.4). There is no kernel driver and no
 
 ## Build
 
+WinDoze uses Windows-only APIs (AppContainer, LPAC, ACLs) and **must be built on Windows** with MSVC.
+
+### Option A — build on your PC
+
+Prerequisites: Visual Studio 2022 with **Desktop development with C++**, and CMake 3.20+.
+
 ```powershell
 git clone <repo-url>
 cd WinDoze
+.\tools\build.ps1
+```
+
+Output: `build\Release\windoze.exe` (Visual Studio generator) or `build\windoze.exe` (Ninja).
+
+Manual CMake:
+
+```powershell
 cmake -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ```
 
-The launcher binary is `build\Release\windoze.exe`.
+### Option B — download CI build
+
+Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads `windoze.exe` as an artifact.
+
+1. Open the repo on GitHub → **Actions** → **Build WinDoze** → latest green run
+2. Download the **windoze-windows-x64** artifact
+3. Unzip — `build\windoze.exe` is ready to use
+
+### Cannot build on Linux/macOS
+
+Cross-compiling is not supported — AppContainer APIs exist only on Windows.
 
 ## Quick start
 
