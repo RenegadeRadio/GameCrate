@@ -55,7 +55,7 @@ void AppendValueEntries(HKEY key, const std::wstring& keyPath, RegistrySnapshot&
         RegistryEntry entry;
         entry.keyPath = keyPath;
         entry.valueName.assign(valueName.c_str(), nameLength);
-        entry.type = type;
+        entry.valueType = type;
         entry.data.assign(data.begin(), data.begin() + dataLength);
         snapshot.entries.push_back(std::move(entry));
     }
@@ -128,7 +128,7 @@ void CaptureKeyRecursive(
 }
 
 std::wstring EntryKey(const RegistryEntry& entry) {
-    return entry.keyPath + L"|" + entry.valueName + L"|" + std::to_wstring(entry.type);
+    return entry.keyPath + L"|" + entry.valueName + L"|" + std::to_wstring(entry.valueType);
 }
 
 bool DataEqual(const RegistryEntry& left, const RegistryEntry& right) {
