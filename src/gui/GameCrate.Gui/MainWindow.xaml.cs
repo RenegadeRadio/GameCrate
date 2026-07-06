@@ -167,7 +167,9 @@ public partial class MainWindow : Window
 
         var confirm = MessageBox.Show(
             $"Remove profile \"{profile.Name}\" ({profile.Id})?\n\n" +
-            "This deletes the profile and wipes sandbox data (install dir + virtual AppData).",
+            "This deletes the profile, revokes sandbox ACLs, and wipes GameCrate data " +
+            "under %ProgramData%\\GameCrate\\<id>\\ (saves, virtual AppData, reports).\n\n" +
+            "Game files in the install directory are not deleted.",
             "Remove profile",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning);

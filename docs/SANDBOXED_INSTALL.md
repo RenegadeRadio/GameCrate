@@ -83,6 +83,13 @@ By default, install dir ACLs are tightened to **read/execute** after a successfu
 | `--allow-outside-writes` | off | Warn but don't fail on outside writes |
 | `--keep-install-writable` | off | Keep install dir writable after install |
 | `--network` | off | Allow network during install |
+| `--save-dir` | auto | Override save directory |
+| `--no-registry` | off | Do not grant `registryRead` |
+| `--lpac-com` | off | Grant COM capability |
+| `--no-gpu` | off | Disable GPU capabilities |
+| `--no-virtual-app-data` | off | Do not redirect AppData |
+
+Full flag reference: [CLI.md](CLI.md).
 
 ## Exit codes
 

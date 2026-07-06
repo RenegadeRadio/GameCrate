@@ -25,7 +25,7 @@
             <TextBlock Text="Display name" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4"/>
             <TextBox x:Name="NameBox" Padding="8" Margin="0,0,0,12"/>
 
-            <TextBlock Text="Profile ID (letters, numbers, hyphens)" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4"/>
+            <TextBlock Text="Profile ID (lowercase letters, numbers, hyphens)" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4"/>
             <TextBox x:Name="IdBox" Padding="8" Margin="0,0,0,12"/>
 
             <TextBlock Text="Install directory (empty folder)" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,4"/>

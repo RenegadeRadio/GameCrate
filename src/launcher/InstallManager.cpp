@@ -7,6 +7,7 @@
 
 #include <ShlObj.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -155,6 +156,47 @@ bool InstallManager::ApplyProfileAcls(const SandboxProfile& profile, AclMode mod
     }
 
     const bool ok = AclManager::GrantAppContainerAccess(packageSid, grants);
+    if (packageSid) {
+        FreeSid(packageSid);
+    }
+    return ok;
+}
+
+bool InstallManager::RemoveProfileAcls(const SandboxProfile& profile) {
+    PSID packageSid = nullptr;
+    HRESULT hr = DeriveAppContainerSidFromAppContainerName(profile.moniker.c_str(), &packageSid);
+    if (FAILED(hr)) {
+        std::vector<SID_AND_ATTRIBUTES> capabilities;
+        if (!AppContainerLauncher::CreateOrResolveProfile(
+                profile.moniker, profile.name, capabilities, &packageSid)) {
+            return false;
+        }
+    }
+
+    std::vector<std::wstring> paths;
+    auto addPath = [&](const std::wstring& path) {
+        if (!path.empty()) {
+            paths.push_back(path);
+        }
+    };
+
+    addPath(profile.installDir);
+    addPath(profile.saveDir);
+    for (const auto& path : profile.writablePaths) {
+        addPath(path);
+    }
+    for (const auto& path : profile.readablePaths) {
+        addPath(path);
+    }
+
+    std::sort(paths.begin(), paths.end());
+    paths.erase(std::unique(paths.begin(), paths.end()), paths.end());
+
+    bool ok = true;
+    for (const auto& path : paths) {
+        ok = AclManager::RemoveAppContainerAccess(packageSid, path) && ok;
+    }
+
     if (packageSid) {
         FreeSid(packageSid);
     }

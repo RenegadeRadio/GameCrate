@@ -86,9 +86,9 @@ public partial class InstallWindow : Window
             return;
         }
 
-        if (!Regex.IsMatch(id, @"^[a-zA-Z0-9][a-zA-Z0-9\-]*$"))
+        if (!Regex.IsMatch(id, @"^[a-z0-9][a-z0-9\-]*$"))
         {
-            MessageBox.Show("Profile ID must start with a letter or number and contain only letters, numbers, and hyphens.",
+            MessageBox.Show("Profile ID must start with a lowercase letter or number and contain only lowercase letters, numbers, and hyphens.",
                 "Install", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }

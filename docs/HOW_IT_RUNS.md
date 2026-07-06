@@ -17,7 +17,7 @@ The GUI wraps the CLI. It does not duplicate sandbox logic. See [GUI.md](GUI.md)
 You  →  GameCrate.Gui.exe  →  gamecrate.exe launch --profile my-game  →  game.exe (sandboxed)
 ```
 
-There is no always-on daemon. The tray icon stays available while the GUI is running; close it from the tray menu to exit.
+There is no always-on daemon. The tray icon is available while the GUI process is running. Closing the main window or choosing **Exit** from the tray menu quits the app.
 
 ### CLI-only usage
 

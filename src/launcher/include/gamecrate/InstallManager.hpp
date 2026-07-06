@@ -50,6 +50,7 @@ public:
     static void ApplyVirtualStorage(SandboxProfile& profile);
     static std::unique_ptr<wchar_t[]> BuildEnvironmentForProfile(const SandboxProfile& profile);
     static bool ApplyProfileAcls(const SandboxProfile& profile, AclMode mode);
+    static bool RemoveProfileAcls(const SandboxProfile& profile);
     static InstallResult Run(const InstallOptions& options);
     static std::wstring DetectExecutable(const std::wstring& installDir);
     static bool WriteReport(const InstallResult& result, const InstallOptions& options);

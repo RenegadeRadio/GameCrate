@@ -44,7 +44,7 @@ Games can read world-readable system files (`C:\Windows\System32\*.dll`). This i
 
 ### Capability sprawl
 
-Over-granting capabilities (`internetClient` + broad `extraReadPaths`) weakens isolation. Profiles should use minimal grants and be reviewed.
+Over-granting capabilities (`internetClient` + broad `readablePaths`) weakens isolation. Profiles should use minimal grants and be reviewed.
 
 ### Installer supply chain
 
@@ -59,5 +59,5 @@ AppContainer escapes are rare but historically possible (patch Windows promptly)
 1. Create one profile per game — never share profiles across titles.
 2. Keep `network: false` for offline single-player games.
 3. Point saves to `%ProgramData%\GameCrate\<profile>\saves`, not `Documents`.
-4. Review `extraReadPaths` — never add `C:\Users` or drive roots.
+4. Review `readablePaths` — never add `C:\Users` or drive roots.
 5. Run GameCrate launcher from a standard user account, not Administrator.

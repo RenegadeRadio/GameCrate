@@ -17,22 +17,35 @@ cd build\package
 .\GameCrate.Gui.exe
 ```
 
-The app minimizes to the system tray. Double-click the tray icon or choose **Open GameCrate** from the context menu.
+On startup the main window opens and a **system tray icon** appears. The app runs until you choose **Exit** from the tray menu or close the main window.
+
+| Tray action | Behavior |
+|---|---|
+| Double-click icon | Open / focus main window |
+| **Open GameCrate** | Open / focus main window |
+| **Install game...** | Open main window and install wizard |
+| **Exit** | Quit the application |
+
+Closing the main window exits the app (there is no hide-to-tray-only mode in v0.4).
 
 ## Features
 
-| Action | Description |
+| Action | CLI equivalent |
 |---|---|
-| **Install game** | Wizard for sandboxed installer run + footprint scan |
-| **Play** | Launch the selected profile (`gamecrate launch --no-wait`) |
-| **Install report** | Opens the JSON report from the last sandboxed install |
-| **Remove profile** | Deletes the profile and wipes sandbox data (`destroy-profile --wipe-data`) |
-| **Refresh** | Reloads the profile list from disk |
+| **Install game** | `gamecrate install ...` |
+| **Play** | `gamecrate launch --profile <id> --no-wait` |
+| **Install report** | Opens `%ProgramData%\GameCrate\<id>\install-report.json` |
+| **Remove profile** | `gamecrate destroy-profile --profile <id> --wipe-data` |
+| **Refresh** | `gamecrate list-profiles --json` |
+
+**Not in the GUI (use CLI):** `create-profile` for already-installed games, `grant`, editing `readablePaths` / `writablePaths`.
 
 ## Install wizard options
 
 - **Virtualize AppData (recommended)** — redirects `%APPDATA%`, `%LOCALAPPDATA%`, and `%TEMP%` into the sandbox. Uncheck only if an installer genuinely needs real AppData paths.
 - **Allow network during install** — grants network to the installer process. Off by default for malware isolation.
+
+Profile IDs must match the schema: lowercase letters, numbers, and hyphens (`[a-z0-9-]+`).
 
 ## How it works
 
@@ -55,3 +68,7 @@ Copy-Item build\gamecrate.exe build\package\gamecrate.exe
 **Install hangs** — some installers need elevation or network. Check the install report after completion; re-run from the CLI with `--network` if the game requires online activation during setup.
 
 **Game won't start from GUI** — verify the profile with `gamecrate show-profile --profile <id>`. Anti-cheat and some DRM titles cannot run inside LPAC.
+
+**Remove profile** — deletes the profile, revokes ACLs, and wipes `%ProgramData%\GameCrate\<id>\`. Game files in the install directory are **not** deleted.
+
+See also [CLI.md](CLI.md) and [HOW_IT_RUNS.md](HOW_IT_RUNS.md).

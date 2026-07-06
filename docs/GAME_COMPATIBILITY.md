@@ -24,9 +24,9 @@ GameCrate uses LPAC sandboxing. Not every game will work without profile tuning.
 
 - Steam/Epic/GOG launchers — need launcher path grants + network + often COM
 - Games with self-updaters — need write access to install dir
-- Titles using EasyAntiCheat, BattlEye, Vanguard — **will not work** in v0.1
+- Titles using EasyAntiCheat, BattlEye, Vanguard — **will not work** in GameCrate
 
-### Tier D — Unsupported in v0.1
+### Tier D — Unsupported
 
 - Kernel anti-cheat (see above)
 - Games requiring kernel drivers (some VR, some DRM)
@@ -43,7 +43,7 @@ GameCrate uses LPAC sandboxing. Not every game will work without profile tuning.
 | Anti-cheat error on launch | Not compatible — run outside GameCrate or wait for hypervisor-based approach |
 | Missing DLL | Game may expect redistributables outside install dir — install VC++ runtimes on host (they load from System32) |
 
-## Launcher integration (manual v0.1)
+## Launcher integration (manual)
 
 For Steam games, a typical flow:
 
@@ -52,7 +52,7 @@ For Steam games, a typical flow:
 3. Enable `network` and `registryRead`
 4. Launch `Game.exe` directly, not `steam.exe` (avoids Steam singleton issues)
 
-Future GameCrate versions will automate launcher detection.
+Future GameCrate versions (v0.5) will automate launcher detection.
 
 ## Testing checklist
 

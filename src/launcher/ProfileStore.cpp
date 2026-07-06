@@ -1,3 +1,4 @@
+#include "gamecrate/InstallManager.hpp"
 #include "gamecrate/ProfileStore.hpp"
 
 #include <ShlObj.h>
@@ -293,6 +294,7 @@ std::wstring ProfileStore::ListProfilesJson() {
 bool ProfileStore::Destroy(const std::wstring& id, bool wipeData) {
     SandboxProfile profile;
     if (Load(id, profile)) {
+        InstallManager::RemoveProfileAcls(profile);
         DeleteAppContainerProfile(profile.moniker.c_str());
     }
 

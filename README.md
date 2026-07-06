@@ -35,7 +35,7 @@ Read the full design in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - The CLI configures Windows LPAC + filesystem ACLs, spawns `game.exe`, then exits (or waits for the game)
 - The game window you see is the real game; GameCrate is the control plane, Windows is the sandbox runtime
 
-See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) and [docs/GUI.md](docs/GUI.md).
+See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) and [docs/GUI.md](docs/GUI.md). Full CLI reference: [docs/CLI.md](docs/CLI.md).
 
 ```
 You → GameCrate.Gui.exe  →  gamecrate.exe launch --profile my-game  →  game.exe (sandboxed)
@@ -65,6 +65,8 @@ cd GameCrate
 
 Output: `build\Release\gamecrate.exe` (Visual Studio generator) or `build\gamecrate.exe` (Ninja).
 
+> **Path tip:** Examples below use `.\build\gamecrate.exe` (Ninja/CI). If you built with `tools\build.ps1`, substitute `.\build\Release\gamecrate.exe`.
+
 ### GUI (optional)
 
 Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0):
@@ -86,10 +88,25 @@ cmake --build build --config Release
 
 ### Option B — download CI build
 
-Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads the Windows build as an artifact.
+Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest`.
+
+| Trigger | Branches / events |
+|---|---|
+| Push | `main`, `cursor/**` |
+| Pull request | into `main` |
+| Manual | `workflow_dispatch` |
+
+The workflow builds with **CMake + Ninja + MSVC**, publishes the WPF GUI, and uploads artifact **gamecrate-windows-x64**:
+
+| Path | Contents |
+|---|---|
+| `build/gamecrate.exe` | CLI |
+| `build/package/GameCrate.Gui.exe` | GUI (+ .NET dependencies) |
+| `build/package/gamecrate.exe` | CLI copy for GUI folder |
+| `profiles/`, `tools/` | Schema, examples, PowerShell helpers |
 
 1. Open the repo on GitHub → **Actions** → **Build GameCrate** → latest green run
-2. Download the **gamecrate-windows-x64** artifact
+2. Download **gamecrate-windows-x64**
 3. Unzip — run `build\package\GameCrate.Gui.exe` (GUI) or `build\gamecrate.exe` (CLI)
 
 ### Cannot build on Linux/macOS
@@ -143,16 +160,39 @@ Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacM
 
 ## CLI reference
 
+See **[docs/CLI.md](docs/CLI.md)** for full flags, JSON output, and install report fields.
+
 | Command | Description |
 |---|---|
 | `install` | Run installer in LPAC + footprint scan |
 | `create-profile` | Register AppContainer + save JSON profile + apply ACLs |
-| `launch` | Start the game inside LPAC |
+| `launch` | Start the game inside LPAC (`--no-wait` optional) |
 | `grant` | Re-apply filesystem ACL grants |
 | `show-install-report` | Print install footprint report |
-| `destroy-profile` | Remove profile; use `--wipe-data` to delete sandbox files |
-| `list-profiles` | List installed profiles (`--json` for machine-readable output) |
-| `show-profile` | Print profile details |
+| `destroy-profile` | Remove profile + revoke ACLs; `--wipe-data` deletes sandbox data |
+| `list-profiles` | List profiles (`--json` for machine-readable output) |
+| `show-profile` | Print profile summary |
+
+## PowerShell helpers
+
+| Script | Purpose |
+|---|---|
+| `tools\build.ps1` | Build `gamecrate.exe` |
+| `tools\New-GameSandbox.ps1` | Create profile for an existing game + grant |
+| `tools\Install-GameSandbox.ps1` | Sandboxed install + show report |
+| `tools\Grant-ProfileAcls.ps1` | Re-run `grant` for one profile |
+
+## Documentation
+
+| Doc | Topic |
+|---|---|
+| [docs/README.md](docs/README.md) | Documentation index |
+| [docs/CLI.md](docs/CLI.md) | Full command reference |
+| [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) | Untrusted installer workflow |
+| [docs/VIRTUAL_STORAGE.md](docs/VIRTUAL_STORAGE.md) | AppData redirect, registry scan, teardown |
+| [docs/GUI.md](docs/GUI.md) | Tray application |
+| [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) | Game tiers and tuning |
+| [profiles/schema.json](profiles/schema.json) | Profile JSON schema |
 
 ## How isolation works
 
@@ -165,7 +205,7 @@ Everything else on the system remains inaccessible unless it is world-readable (
 ## Project layout
 
 ```
-docs/           Architecture, threat model, compatibility, how it runs, GUI
+docs/           Documentation index, CLI reference, architecture, GUI
 profiles/       JSON schema + examples
 src/launcher/   C++ LPAC launcher, ACL manager, profile store
 src/gui/        WPF tray GUI (GameCrate.Gui)

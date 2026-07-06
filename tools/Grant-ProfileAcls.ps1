@@ -5,9 +5,6 @@
 
 .PARAMETER ProfileId
     Profile identifier.
-
-.PARAMETER InstallDir
-    Optional override if the profile JSON is not yet created.
 #>
 [CmdletBinding()]
 param(
@@ -19,6 +16,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $gamecrateCandidates = @(
+    (Join-Path $PSScriptRoot "..\build\gamecrate.exe"),
     (Join-Path $PSScriptRoot "..\build\Release\gamecrate.exe"),
     (Join-Path $PSScriptRoot "..\out\build\x64-Release\gamecrate.exe"),
     "gamecrate.exe"

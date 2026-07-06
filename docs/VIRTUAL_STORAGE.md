@@ -43,9 +43,18 @@ During `gamecrate install`, GameCrate snapshots these `HKCU` areas before and af
 - `Software` (depth-limited)
 - `Software\Microsoft\Windows\CurrentVersion\Run`
 - `Software\Microsoft\Windows\CurrentVersion\RunOnce`
-- Startup approval keys
+- `Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run`
+- `Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Run`
 
-New or modified values are written to `install-report.json` as `registryChanges`. Entries under Run/RunOnce are flagged as **suspicious**.
+New or modified values are recorded in `install-report.json`:
+
+| Array | Meaning |
+|---|---|
+| `registryChanges` | All detected registry diffs |
+| `outsideRegistryChanges` | Changes outside the virtual sandbox context |
+| `suspiciousRegistryChanges` | Run/RunOnce and similar persistence keys |
+
+Entries under Run/RunOnce are flagged as **suspicious**.
 
 ### Important limitation
 
@@ -62,7 +71,12 @@ gamecrate destroy-profile --profile my-game --wipe-data
 ```
 
 - Deletes the profile JSON and AppContainer registration
+- Revokes filesystem ACL ACEs on install, save, and extra granted paths
 - `--wipe-data` removes `%ProgramData%\GameCrate\<id>\` (saves, virtual AppData, reports)
+
+Does **not** delete game files in `installDir` — remove those manually if needed.
+
+Full reference: [CLI.md](CLI.md#destroy-profile).
 
 ## Malware workflow (v0.3)
 

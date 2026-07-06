@@ -91,7 +91,11 @@ PowerShell helpers in `tools/` handle bulk ACL setup and guided game installatio
 ### 1. Create profile
 
 ```powershell
-gamecrate create-profile --name "Hollow Knight" --install-dir "D:\Games\HollowKnight"
+gamecrate create-profile `
+  --id hollow-knight `
+  --name "Hollow Knight" `
+  --install-dir "D:\Games\HollowKnight" `
+  --executable "D:\Games\HollowKnight\hollow_knight.exe"
 ```
 
 Creates `%ProgramData%\GameCrate\profiles\hollow-knight.json` and registers the AppContainer moniker.
@@ -99,10 +103,14 @@ Creates `%ProgramData%\GameCrate\profiles\hollow-knight.json` and registers the 
 ### 2. Install game (sandboxed)
 
 ```powershell
-gamecrate install --profile hollow-knight --installer "D:\Downloads\setup.exe"
+gamecrate install `
+  --id my-game `
+  --name "My Game" `
+  --install-dir "D:\Sandbox\MyGame" `
+  --installer "D:\Downloads\setup.exe"
 ```
 
-Runs the installer inside the LPAC. Files land only where the installer can write — which is only granted paths. After install, `gamecrate` scans the install tree and locks ACLs to that footprint.
+Runs the installer inside the LPAC. Files land only where the installer can write — which is only granted paths. After install, GameCrate scans the install tree and locks ACLs to that footprint. See [SANDBOXED_INSTALL.md](SANDBOXED_INSTALL.md).
 
 ### 3. Launch
 
@@ -115,10 +123,10 @@ Spawns the game's executable with LPAC + profile capabilities. Child processes i
 ### 4. Teardown
 
 ```powershell
-gamecrate destroy-profile --profile hollow-knight
+gamecrate destroy-profile --profile hollow-knight --wipe-data
 ```
 
-Removes custom ACLs, deletes the AppContainer profile, and optionally wipes sandbox data.
+Removes AppContainer registration, revokes ACL ACEs on granted paths, deletes the profile JSON, and optionally wipes `%ProgramData%\GameCrate\<id>\`. Does **not** delete game files in `installDir`.
 
 ## Threat model (summary)
 
@@ -144,7 +152,7 @@ See [THREAT_MODEL.md](THREAT_MODEL.md) for detail.
 | **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI |
 | **v0.2** | Sandboxed installer + install footprint scanner |
 | **v0.3** | AppData redirection + registry install scan + destroy-profile |
-| **v0.4 (current)** | WPF tray GUI wrapping the CLI |
+| **v0.4** | WPF tray GUI wrapping the CLI |
 | v0.5 | Steam/Epic launcher integration |
 | v1.0 | Optional kernel minifilter for deny-by-default on all volumes |
 
