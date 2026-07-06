@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://windoze.dev/schemas/profile.json",
+  "title": "WinDoze Sandbox Profile",
+  "type": "object",
+  "required": ["id", "name", "installDir", "executable"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+      "description": "Stable profile identifier used in CLI commands."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable game name."
+    },
+    "moniker": {
+      "type": "string",
+      "description": "AppContainer moniker. Defaults to WinDoze.<id>."
+    },
+    "installDir": {
+      "type": "string",
+      "description": "Root directory where the game is installed."
+    },
+    "executable": {
+      "type": "string",
+      "description": "Path to the game executable to launch."
+    },
+    "arguments": {
+      "type": "string",
+      "default": ""
+    },
+    "saveDir": {
+      "type": "string",
+      "description": "Isolated directory for saves and settings."
+    },
+    "writablePaths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Additional paths granted read/write access."
+    },
+    "readablePaths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Additional paths granted read/execute access."
+    },
+    "network": {
+      "type": "boolean",
+      "default": false,
+      "description": "Grant internetClient and privateNetworkClientServer."
+    },
+    "registryRead": {
+      "type": "boolean",
+      "default": true,
+      "description": "Required for most Win32 games under LPAC."
+    },
+    "lpacCom": {
+      "type": "boolean",
+      "default": false,
+      "description": "Grant COM access for launcher-heavy titles."
+    }
+  },
+  "additionalProperties": false
+}
