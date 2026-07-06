@@ -15,25 +15,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup MSVC toolchain
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Configure CMake
-        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+        run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build Release
-        run: cmake --build build --config Release
+        run: cmake --build build
 
       - name: Verify binary
+        shell: pwsh
         run: |
-          if (-not (Test-Path "build\Release\windoze.exe")) {
-            throw "windoze.exe was not produced"
+          $exe = "build\windoze.exe"
+          if (-not (Test-Path $exe)) {
+            throw "windoze.exe was not produced at $exe"
           }
-          Get-Item "build\Release\windoze.exe" | Format-List FullName, Length, LastWriteTime
+          Get-Item $exe | Format-List FullName, Length, LastWriteTime
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windoze-windows-x64
           path: |
-            build/Release/windoze.exe
+            build/windoze.exe
             profiles/
             tools/
           retention-days: 30

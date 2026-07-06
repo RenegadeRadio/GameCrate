@@ -47,12 +47,15 @@ try {
 
     $exe = Join-Path $repoRoot "$BuildDir\$Configuration\windoze.exe"
     if (-not (Test-Path $exe)) {
-        throw "Build finished but $exe was not found."
+        $exe = Join-Path $repoRoot "$BuildDir\windoze.exe"
+    }
+    if (-not (Test-Path $exe)) {
+        throw "Build finished but windoze.exe was not found under $BuildDir."
     }
 
     Write-Host ""
     Write-Host "Built: $exe" -ForegroundColor Green
-    Write-Host "Run:   .\$BuildDir\$Configuration\windoze.exe list-profiles"
+    Write-Host "Run:   & '$exe' list-profiles"
 }
 finally {
     Pop-Location
