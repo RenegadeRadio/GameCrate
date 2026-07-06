@@ -2,6 +2,8 @@
 
 **GameCrate** is a Windows game sandbox that runs titles inside a [Less-Privileged AppContainer (LPAC)](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation). Each game only gets filesystem access to its install directory and isolated save storage — not your Documents, other games, or arbitrary drives.
 
+> **Note:** This project was formerly called **WinDoze**. The CLI binary is `gamecrate.exe`; the tray app is `GameCrate.Gui.exe`.
+
 ## What this solves
 
 - Run untrusted or mod-heavy games without giving them the keys to your whole user profile
@@ -56,7 +58,7 @@ GameCrate uses Windows-only APIs (AppContainer, LPAC, ACLs) and **must be built 
 Prerequisites: Visual Studio 2022 with **Desktop development with C++**, and CMake 3.20+.
 
 ```powershell
-git clone <repo-url>
+git clone https://github.com/RenegadeRadio/GameCrate.git
 cd GameCrate
 .\tools\build.ps1
 ```
@@ -84,11 +86,11 @@ cmake --build build --config Release
 
 ### Option B — download CI build
 
-Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads `gamecrate.exe` as an artifact.
+Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads the Windows build as an artifact.
 
 1. Open the repo on GitHub → **Actions** → **Build GameCrate** → latest green run
 2. Download the **gamecrate-windows-x64** artifact
-3. Unzip — `build\gamecrate.exe` is ready to use
+3. Unzip — run `build\package\GameCrate.Gui.exe` (GUI) or `build\gamecrate.exe` (CLI)
 
 ### Cannot build on Linux/macOS
 
@@ -97,6 +99,8 @@ Cross-compiling is not supported — AppContainer APIs exist only on Windows.
 ## Quick start
 
 ### Sandboxed install (recommended for untrusted games)
+
+Use the **GameCrate** GUI or the `gamecrate.exe` CLI:
 
 ```powershell
 .\build\gamecrate.exe install `
