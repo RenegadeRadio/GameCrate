@@ -9,6 +9,8 @@ add_executable(windoze
     src/launcher/AppContainerLauncher.cpp
     src/launcher/AclManager.cpp
     src/launcher/ProfileStore.cpp
+    src/launcher/FootprintScanner.cpp
+    src/launcher/InstallManager.cpp
 )
 
 target_include_directories(windoze PRIVATE src/launcher/include)

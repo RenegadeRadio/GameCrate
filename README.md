@@ -83,6 +83,23 @@ Cross-compiling is not supported — AppContainer APIs exist only on Windows.
 
 ## Quick start
 
+### Sandboxed install (recommended for untrusted games)
+
+```powershell
+.\build\windoze.exe install `
+  --id my-game `
+  --name "My Game" `
+  --install-dir "D:\Sandbox\MyGame" `
+  --installer "D:\Downloads\setup.exe"
+
+.\build\windoze.exe show-install-report --profile my-game
+.\build\windoze.exe launch --profile my-game
+```
+
+See [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) for the full install workflow.
+
+### Already-installed game
+
 ```powershell
 # 1. Create a profile for an installed game
 .\build\Release\windoze.exe create-profile `
@@ -111,9 +128,11 @@ Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacM
 
 | Command | Description |
 |---|---|
+| `install` | Run installer in LPAC + footprint scan |
 | `create-profile` | Register AppContainer + save JSON profile + apply ACLs |
 | `launch` | Start the game inside LPAC |
 | `grant` | Re-apply filesystem ACL grants |
+| `show-install-report` | Print install footprint report |
 | `list-profiles` | List installed profiles |
 | `show-profile` | Print profile details |
 
@@ -137,7 +156,7 @@ tools/          PowerShell setup helpers
 ## Roadmap
 
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
-- [ ] v0.2 — Sandboxed installer + install footprint scanner
+- [x] v0.2 — Sandboxed installer + install footprint scanner
 - [ ] v0.3 — Registry / AppData redirection
 - [ ] v0.4 — GUI + launcher integration
 

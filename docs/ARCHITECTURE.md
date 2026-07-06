@@ -140,8 +140,8 @@ See [THREAT_MODEL.md](THREAT_MODEL.md) for detail.
 
 | Phase | Deliverable |
 |---|---|
-| **v0.1 (current)** | LPAC launcher, JSON profiles, ACL grants, CLI |
-| v0.2 | Sandboxed installer + install footprint scanner |
+| **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI |
+| **v0.2 (current)** | Sandboxed installer + install footprint scanner |
 | v0.3 | Registry / AppData redirection |
 | v0.4 | GUI tray app, Steam/Epic integration |
 | v1.0 | Optional kernel minifilter for deny-by-default on all volumes |
