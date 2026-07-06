@@ -1,0 +1,21 @@
+{
+  "$schema": "./schema.json",
+  "title": "Offline indie game profile",
+  "description": "Minimal grants for a self-contained game folder.",
+  "id": "example-offline-indie",
+  "name": "Example Offline Indie Game",
+  "moniker": "WinDoze.example-offline-indie",
+  "installDir": "D:\\Games\\ExampleGame",
+  "executable": "D:\\Games\\ExampleGame\\Game.exe",
+  "arguments": "",
+  "saveDir": "C:\\ProgramData\\WinDoze\\example-offline-indie\\saves",
+  "writablePaths": [
+    "D:\\Games\\ExampleGame",
+    "C:\\ProgramData\\WinDoze\\example-offline-indie\\saves"
+  ],
+  "readablePaths": [],
+  "network": false,
+  "registryRead": true,
+  "lpacCom": false,
+  "gpu": true
+}
