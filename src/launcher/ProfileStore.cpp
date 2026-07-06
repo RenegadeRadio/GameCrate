@@ -250,6 +250,46 @@ std::vector<std::wstring> ProfileStore::ListProfiles() {
     return profiles;
 }
 
+std::wstring ProfileStore::ProfileToJson(const SandboxProfile& profile) {
+    std::wstringstream json;
+    json << L"{\n";
+    json << L"    \"id\": \"" << EscapeJson(profile.id) << L"\",\n";
+    json << L"    \"name\": \"" << EscapeJson(profile.name) << L"\",\n";
+    json << L"    \"moniker\": \"" << EscapeJson(profile.moniker) << L"\",\n";
+    json << L"    \"installDir\": \"" << EscapeJson(profile.installDir) << L"\",\n";
+    json << L"    \"executable\": \"" << EscapeJson(profile.executable) << L"\",\n";
+    json << L"    \"arguments\": \"" << EscapeJson(profile.arguments) << L"\",\n";
+    json << L"    \"saveDir\": \"" << EscapeJson(profile.saveDir) << L"\",\n";
+    json << L"    \"writablePaths\": " << WriteStringArray(profile.writablePaths) << L",\n";
+    json << L"    \"readablePaths\": " << WriteStringArray(profile.readablePaths) << L",\n";
+    json << L"    \"network\": " << (profile.network ? L"true" : L"false") << L",\n";
+    json << L"    \"registryRead\": " << (profile.registryRead ? L"true" : L"false") << L",\n";
+    json << L"    \"lpacCom\": " << (profile.lpacCom ? L"true" : L"false") << L",\n";
+    json << L"    \"gpu\": " << (profile.gpu ? L"true" : L"false") << L",\n";
+    json << L"    \"virtualizeAppData\": " << (profile.virtualizeAppData ? L"true" : L"false") << L"\n";
+    json << L"  }";
+    return json.str();
+}
+
+std::wstring ProfileStore::ListProfilesJson() {
+    const auto profileIds = ListProfiles();
+    std::wstringstream json;
+    json << L"[\n";
+    for (size_t i = 0; i < profileIds.size(); ++i) {
+        SandboxProfile profile;
+        if (!Load(profileIds[i], profile)) {
+            continue;
+        }
+        json << ProfileToJson(profile);
+        if (i + 1 < profileIds.size()) {
+            json << L",";
+        }
+        json << L"\n";
+    }
+    json << L"]\n";
+    return json.str();
+}
+
 bool ProfileStore::Destroy(const std::wstring& id, bool wipeData) {
     SandboxProfile profile;
     if (Load(id, profile)) {

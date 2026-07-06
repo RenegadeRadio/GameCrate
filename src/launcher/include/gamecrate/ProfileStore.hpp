@@ -31,6 +31,8 @@ public:
     static bool Exists(const std::wstring& id);
     static std::vector<std::wstring> CapabilitiesFor(const SandboxProfile& profile);
     static std::vector<std::wstring> ListProfiles();
+    static std::wstring ProfileToJson(const SandboxProfile& profile);
+    static std::wstring ListProfilesJson();
     static bool Destroy(const std::wstring& id, bool wipeData);
 };
 

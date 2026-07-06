@@ -21,7 +21,7 @@ void PrintUsage() {
         << L"  gamecrate grant --profile <id>\n"
         << L"  gamecrate show-install-report --profile <id>\n"
         << L"  gamecrate destroy-profile --profile <id> [--wipe-data]\n"
-        << L"  gamecrate list-profiles\n"
+        << L"  gamecrate list-profiles [--json]\n"
         << L"  gamecrate show-profile --profile <id>\n\n"
         << L"Options for install:\n"
         << L"  --installer-args <args>  Arguments passed to the installer\n"
@@ -351,7 +351,19 @@ int ShowInstallReport(int argc, wchar_t** argv) {
     return 0;
 }
 
-int ListProfiles() {
+int ListProfiles(int argc, wchar_t** argv) {
+    bool asJson = false;
+    for (int i = 2; i < argc; ++i) {
+        if (std::wstring(argv[i]) == L"--json") {
+            asJson = true;
+        }
+    }
+
+    if (asJson) {
+        std::wcout << gamecrate::ProfileStore::ListProfilesJson();
+        return 0;
+    }
+
     const auto profiles = gamecrate::ProfileStore::ListProfiles();
     if (profiles.empty()) {
         std::wcout << L"No profiles found.\n";
@@ -462,7 +474,7 @@ int wmain(int argc, wchar_t** argv) {
             return DestroyProfile(argc, argv);
         }
         if (command == L"list-profiles") {
-            return ListProfiles();
+            return ListProfiles(argc, argv);
         }
         if (command == L"show-profile") {
             return ShowProfile(argc, argv);

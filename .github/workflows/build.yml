@@ -26,6 +26,16 @@ jobs:
       - name: Build Release
         run: cmake --build build
 
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish GUI
+        run: |
+          dotnet publish src/gui/GameCrate.Gui/GameCrate.Gui.csproj -c Release -r win-x64 --self-contained false -o build/package
+          Copy-Item build\gamecrate.exe build\package\gamecrate.exe
+
       - name: Verify binary
         shell: pwsh
         run: |
@@ -36,12 +46,19 @@ jobs:
           Get-Item $exe | Format-List FullName, Length, LastWriteTime
           & $exe list-profiles
 
+          $gui = "build\package\GameCrate.Gui.exe"
+          if (-not (Test-Path $gui)) {
+            throw "GameCrate.Gui.exe was not produced at $gui"
+          }
+          Get-Item $gui | Format-List FullName, Length, LastWriteTime
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: gamecrate-windows-x64
           path: |
             build/gamecrate.exe
+            build/package/
             profiles/
             tools/
           retention-days: 30

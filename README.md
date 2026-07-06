@@ -12,7 +12,7 @@
 
 - Kernel anti-cheat (EAC, BattlEye, Vanguard) — incompatible with LPAC sandboxing
 - Perfect DRM compatibility
-- Steam/Epic launcher automation (planned v0.4)
+- Steam/Epic launcher automation (planned post-v0.4)
 
 See [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) for tiered compatibility guidance.
 
@@ -26,19 +26,20 @@ Read the full design in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## How GameCrate runs
 
-**v0.1 is a single CLI executable** — not a background app or VM.
+**v0.4 adds a WPF tray GUI** alongside the CLI. Both use the same `gamecrate.exe` control plane.
 
-- You run `gamecrate.exe` when you want to create a profile or launch a game
-- It configures Windows LPAC + filesystem ACLs, spawns `game.exe`, then exits (or waits for the game)
+- Run `GameCrate.Gui.exe` for point-and-click install, play, and profile management
+- Or run `gamecrate.exe` from PowerShell for scripting and automation
+- The CLI configures Windows LPAC + filesystem ACLs, spawns `game.exe`, then exits (or waits for the game)
 - The game window you see is the real game; GameCrate is the control plane, Windows is the sandbox runtime
 
-See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) for the full picture, including desktop shortcut setup.
+See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) and [docs/GUI.md](docs/GUI.md).
 
 ```
-You → gamecrate.exe launch --profile my-game → game.exe (sandboxed)
+You → GameCrate.Gui.exe  →  gamecrate.exe launch --profile my-game  →  game.exe (sandboxed)
 ```
 
-Future versions will add a GUI tray app (v0.4). There is no kernel driver and no always-on service in v0.1.
+There is no kernel driver and no always-on service.
 
 ## Requirements
 
@@ -61,6 +62,18 @@ cd GameCrate
 ```
 
 Output: `build\Release\gamecrate.exe` (Visual Studio generator) or `build\gamecrate.exe` (Ninja).
+
+### GUI (optional)
+
+Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0):
+
+```powershell
+dotnet publish src/gui/GameCrate.Gui/GameCrate.Gui.csproj -c Release -r win-x64 --self-contained false -o build/package
+Copy-Item build\gamecrate.exe build\package\gamecrate.exe
+.\build\package\GameCrate.Gui.exe
+```
+
+See [docs/GUI.md](docs/GUI.md).
 
 Manual CMake:
 
@@ -134,7 +147,7 @@ Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacM
 | `grant` | Re-apply filesystem ACL grants |
 | `show-install-report` | Print install footprint report |
 | `destroy-profile` | Remove profile; use `--wipe-data` to delete sandbox files |
-| `list-profiles` | List installed profiles |
+| `list-profiles` | List installed profiles (`--json` for machine-readable output) |
 | `show-profile` | Print profile details |
 
 ## How isolation works
@@ -148,9 +161,10 @@ Everything else on the system remains inaccessible unless it is world-readable (
 ## Project layout
 
 ```
-docs/           Architecture, threat model, compatibility, how it runs
+docs/           Architecture, threat model, compatibility, how it runs, GUI
 profiles/       JSON schema + examples
 src/launcher/   C++ LPAC launcher, ACL manager, profile store
+src/gui/        WPF tray GUI (GameCrate.Gui)
 tools/          PowerShell setup helpers
 ```
 
@@ -159,7 +173,8 @@ tools/          PowerShell setup helpers
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
 - [x] v0.2 — Sandboxed installer + install footprint scanner
 - [x] v0.3 — AppData redirection, registry install scan, destroy-profile
-- [ ] v0.4 — GUI + launcher integration
+- [x] v0.4 — WPF tray GUI wrapping the CLI
+- [ ] v0.5 — Steam/Epic launcher integration
 
 ## License
 

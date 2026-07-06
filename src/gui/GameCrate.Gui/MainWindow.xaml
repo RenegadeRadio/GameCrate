@@ -1,0 +1,59 @@
+<Window x:Class="GameCrate.Gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GameCrate"
+        Height="560" Width="900"
+        MinHeight="420" MinWidth="720"
+        Background="{StaticResource SurfaceBrush}"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="GameCrate" FontSize="26" FontWeight="SemiBold"
+                       Foreground="{StaticResource TextBrush}"/>
+            <TextBlock Text="Run games in a sandbox — installers cannot touch the rest of your PC."
+                       Foreground="{StaticResource MutedBrush}" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <Button x:Name="InstallButton" Content="Install game..." Padding="14,8" Margin="0,0,8,0"
+                    Click="InstallButton_Click"/>
+            <Button x:Name="RefreshButton" Content="Refresh" Padding="14,8" Margin="0,0,8,0"
+                    Click="RefreshButton_Click"/>
+            <Button x:Name="PlayButton" Content="Play" Padding="14,8" Margin="0,0,8,0"
+                    Click="PlayButton_Click" IsEnabled="False"/>
+            <Button x:Name="ReportButton" Content="Install report" Padding="14,8" Margin="0,0,8,0"
+                    Click="ReportButton_Click" IsEnabled="False"/>
+            <Button x:Name="DestroyButton" Content="Remove profile" Padding="14,8"
+                    Click="DestroyButton_Click" IsEnabled="False"
+                    Background="{StaticResource DangerBrush}" Foreground="White"/>
+        </StackPanel>
+
+        <Border Grid.Row="2" Background="{StaticResource CardBrush}" CornerRadius="8" Padding="2">
+            <ListView x:Name="ProfileList" Background="Transparent" BorderThickness="0"
+                      Foreground="{StaticResource TextBrush}"
+                      SelectionChanged="ProfileList_SelectionChanged"
+                      MouseDoubleClick="ProfileList_MouseDoubleClick">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="ID" Width="140" DisplayMemberBinding="{Binding Id}"/>
+                        <GridViewColumn Header="Executable" Width="280" DisplayMemberBinding="{Binding Executable}"/>
+                        <GridViewColumn Header="AppData" Width="80" DisplayMemberBinding="{Binding VirtualizeAppData}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+
+        <Border Grid.Row="3" Margin="0,12,0,0" Padding="12" Background="#0F172A" CornerRadius="6">
+            <TextBlock x:Name="StatusText" Text="Loading profiles..."
+                       Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap"/>
+        </Border>
+    </Grid>
+</Window>

@@ -25,7 +25,7 @@ Games need low-latency GPU access, raw input, audio, and often kernel-mode anti-
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  gamecrate.exe CLI / future GUI                               │
+│  gamecrate.exe CLI + GameCrate.Gui (WPF tray)                 │
 ├─────────────────────────────────────────────────────────────┤
 │  Profile manager (JSON) — paths, capabilities, moniker      │
 ├─────────────────────────────────────────────────────────────┤
@@ -77,6 +77,7 @@ GameCrate redirects `%APPDATA%`, `%LOCALAPPDATA%`, and `%TEMP%` into `%ProgramDa
 
 ```
 gamecrate.exe          CLI entry point
+GameCrate.Gui.exe      WPF tray app — wraps CLI for install/play/report
 ├── ProfileStore     Load/save JSON profiles under %ProgramData%\GameCrate\profiles\
 ├── AclManager       Apply/remove filesystem ACEs for AppContainer SID
 └── AppContainerLauncher
@@ -142,8 +143,9 @@ See [THREAT_MODEL.md](THREAT_MODEL.md) for detail.
 |---|---|
 | **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI |
 | **v0.2** | Sandboxed installer + install footprint scanner |
-| **v0.3 (current)** | AppData redirection + registry install scan + destroy-profile |
-| v0.4 | GUI tray app, Steam/Epic integration |
+| **v0.3** | AppData redirection + registry install scan + destroy-profile |
+| **v0.4 (current)** | WPF tray GUI wrapping the CLI |
+| v0.5 | Steam/Epic launcher integration |
 | v1.0 | Optional kernel minifilter for deny-by-default on all volumes |
 
 ## References
