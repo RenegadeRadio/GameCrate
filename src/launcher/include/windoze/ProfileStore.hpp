@@ -18,6 +18,7 @@ struct SandboxProfile {
     bool network = false;
     bool registryRead = true;
     bool lpacCom = false;
+    bool gpu = true;
 };
 
 class ProfileStore {

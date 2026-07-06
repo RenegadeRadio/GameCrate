@@ -22,7 +22,8 @@ void PrintUsage() {
         << L"  --save-dir <path>       Isolated save directory (default: %ProgramData%\\WinDoze\\<id>\\saves)\n"
         << L"  --network               Grant internet and LAN capabilities\n"
         << L"  --no-registry           Do not grant registryRead (stricter, breaks many games)\n"
-        << L"  --lpac-com              Grant COM capability for launcher-heavy titles\n";
+        << L"  --lpac-com              Grant COM capability for launcher-heavy titles\n"
+        << L"  --no-gpu                Disable GPU capabilities (lpacPnpNotifications, lpacMedia)\n";
 }
 
 std::wstring RequireArg(int argc, wchar_t** argv, int& index) {
@@ -83,6 +84,7 @@ bool ApplyProfileAcls(const windoze::SandboxProfile& profile) {
 int CreateProfile(int argc, wchar_t** argv) {
     windoze::SandboxProfile profile;
     profile.registryRead = true;
+    profile.gpu = true;
 
     for (int i = 2; i < argc; ++i) {
         const std::wstring arg = argv[i];
@@ -102,6 +104,8 @@ int CreateProfile(int argc, wchar_t** argv) {
             profile.registryRead = false;
         } else if (arg == L"--lpac-com") {
             profile.lpacCom = true;
+        } else if (arg == L"--no-gpu") {
+            profile.gpu = false;
         }
     }
 
@@ -282,7 +286,9 @@ int ShowProfile(int argc, wchar_t** argv) {
                << L"executable: " << profile.executable << L"\n"
                << L"saveDir: " << profile.saveDir << L"\n"
                << L"network: " << (profile.network ? L"true" : L"false") << L"\n"
-               << L"registryRead: " << (profile.registryRead ? L"true" : L"false") << L"\n";
+               << L"registryRead: " << (profile.registryRead ? L"true" : L"false") << L"\n"
+               << L"gpu: " << (profile.gpu ? L"true" : L"false") << L"\n"
+               << L"lpacCom: " << (profile.lpacCom ? L"true" : L"false") << L"\n";
     return 0;
 }
 

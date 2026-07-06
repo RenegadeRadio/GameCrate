@@ -63,6 +63,8 @@ System directories (`C:\Windows`, `C:\Program Files`) remain readable so games c
 | `internetClient` | Online games, launchers |
 | `privateNetworkClientServer` | LAN multiplayer |
 | `registryRead` | Most Win32 games (LPAC blocks registry otherwise) |
+| `lpacPnpNotifications` | GPU / DirectX 12 adapter enumeration (default for game profiles) |
+| `lpacMedia` | Media and GPU-related LPAC paths (default for game profiles) |
 | `lpacCom` | Games using COM (some launchers, codecs) |
 
 Capabilities are declared in the profile JSON and passed to `CreateAppContainerProfile`.

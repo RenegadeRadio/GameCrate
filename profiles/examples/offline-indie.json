@@ -16,5 +16,6 @@
   "readablePaths": [],
   "network": false,
   "registryRead": true,
-  "lpacCom": false
+  "lpacCom": false,
+  "gpu": true
 }

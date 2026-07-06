@@ -58,6 +58,11 @@
       "type": "boolean",
       "default": false,
       "description": "Grant COM access for launcher-heavy titles."
+    },
+    "gpu": {
+      "type": "boolean",
+      "default": true,
+      "description": "Grant lpacPnpNotifications and lpacMedia for DirectX/GPU adapter access."
     }
   },
   "additionalProperties": false

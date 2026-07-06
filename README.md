@@ -24,6 +24,22 @@ windoze.exe  →  JSON profile  →  ACL grants  →  LPAC CreateProcess  →  g
 
 Read the full design in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## How WinDoze runs
+
+**v0.1 is a single CLI executable** — not a background app or VM.
+
+- You run `windoze.exe` when you want to create a profile or launch a game
+- It configures Windows LPAC + filesystem ACLs, spawns `game.exe`, then exits (or waits for the game)
+- The game window you see is the real game; WinDoze is the control plane, Windows is the sandbox runtime
+
+See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) for the full picture, including desktop shortcut setup.
+
+```
+You → windoze.exe launch --profile my-game → game.exe (sandboxed)
+```
+
+Future versions will add a GUI tray app (v0.4). There is no kernel driver and no always-on service in v0.1.
+
 ## Requirements
 
 - Windows 10 version 1809+ or Windows 11 (x64)
@@ -63,6 +79,10 @@ The launcher binary is `build\Release\windoze.exe`.
 
 Add `--network` when creating the profile (grants `internetClient` + `privateNetworkClientServer`).
 
+### GPU (default on)
+
+Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacMedia`) for DirectX adapter access. Use `--no-gpu` only for non-graphical sandboxes.
+
 ## CLI reference
 
 | Command | Description |
@@ -84,7 +104,7 @@ Everything else on the system remains inaccessible unless it is world-readable (
 ## Project layout
 
 ```
-docs/           Architecture, threat model, compatibility
+docs/           Architecture, threat model, compatibility, how it runs
 profiles/       JSON schema + examples
 src/launcher/   C++ LPAC launcher, ACL manager, profile store
 tools/          PowerShell setup helpers

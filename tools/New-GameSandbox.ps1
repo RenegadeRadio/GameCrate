@@ -40,6 +40,8 @@ param(
 
     [switch]$Network,
 
+    [switch]$NoGpu,
+
     [switch]$Launch
 )
 
@@ -82,6 +84,7 @@ $args = @(
 )
 
 if ($Network) { $args += "--network" }
+if ($NoGpu) { $args += "--no-gpu" }
 
 Write-Host "Creating WinDoze profile '$Id'..."
 & $windoze @args

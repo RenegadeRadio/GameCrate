@@ -152,7 +152,8 @@ bool ProfileStore::Save(const SandboxProfile& profile) {
     json << L"  \"readablePaths\": " << WriteStringArray(profile.readablePaths) << L",\n";
     json << L"  \"network\": " << (profile.network ? L"true" : L"false") << L",\n";
     json << L"  \"registryRead\": " << (profile.registryRead ? L"true" : L"false") << L",\n";
-    json << L"  \"lpacCom\": " << (profile.lpacCom ? L"true" : L"false") << L"\n";
+    json << L"  \"lpacCom\": " << (profile.lpacCom ? L"true" : L"false") << L",\n";
+    json << L"  \"gpu\": " << (profile.gpu ? L"true" : L"false") << L"\n";
     json << L"}\n";
 
     std::wofstream out(ProfilePath(profile.id));
@@ -185,6 +186,7 @@ bool ProfileStore::Load(const std::wstring& id, SandboxProfile& out) {
     out.network = ReadBool(json, L"network", false);
     out.registryRead = ReadBool(json, L"registryRead", true);
     out.lpacCom = ReadBool(json, L"lpacCom", false);
+    out.gpu = ReadBool(json, L"gpu", true);
 
     if (out.id.empty()) {
         out.id = id;
@@ -212,6 +214,10 @@ std::vector<std::wstring> ProfileStore::CapabilitiesFor(const SandboxProfile& pr
     }
     if (profile.lpacCom) {
         capabilities.push_back(L"lpacCom");
+    }
+    if (profile.gpu) {
+        capabilities.push_back(L"lpacPnpNotifications");
+        capabilities.push_back(L"lpacMedia");
     }
     return capabilities;
 }

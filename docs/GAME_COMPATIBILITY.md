@@ -14,8 +14,9 @@ WinDoze uses LPAC sandboxing. Not every game will work without profile tuning. U
 
 ### Tier B — Needs capability tuning
 
-- Games that read registry for settings (enable `registryRead`)
-- LAN multiplayer (add `privateNetworkClientServer`)
+- Games that read registry for settings (enable `registryRead` — default on)
+- DirectX 12 / black screen on launch (`gpu: true` — default on; grants `lpacPnpNotifications` + `lpacMedia`)
+- LAN multiplayer (add `privateNetworkClientServer` via `--network`)
 - Online multiplayer (add `internetClient`)
 - Games using COM codecs or shell integration (add `lpacCom`)
 
@@ -36,6 +37,7 @@ WinDoze uses LPAC sandboxing. Not every game will work without profile tuning. U
 | Symptom | Likely fix |
 |---|---|
 | Instant exit, no window | Missing `registryRead` or blocked DLL path |
+| Black screen / no GPU | Ensure `gpu: true` in profile (default); try updating graphics drivers |
 | "Cannot connect" / online fails | Enable `network` in profile |
 | Cannot write save | Add save path to `writablePaths` |
 | Anti-cheat error on launch | Not compatible — run outside WinDoze or wait for hypervisor-based approach |
