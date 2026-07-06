@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace windoze {
+namespace gamecrate {
 
 struct SandboxProfile {
     std::wstring id;
@@ -32,4 +32,4 @@ public:
     static std::vector<std::wstring> ListProfiles();
 };
 
-}  // namespace windoze
+}  // namespace gamecrate

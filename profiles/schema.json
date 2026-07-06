@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://windoze.dev/schemas/profile.json",
-  "title": "WinDoze Sandbox Profile",
+  "$id": "https://gamecrate.dev/schemas/profile.json",
+  "title": "GameCrate Sandbox Profile",
   "type": "object",
   "required": ["id", "name", "installDir", "executable"],
   "properties": {
@@ -16,7 +16,7 @@
     },
     "moniker": {
       "type": "string",
-      "description": "AppContainer moniker. Defaults to WinDoze.<id>."
+      "description": "AppContainer moniker. Defaults to GameCrate.<id>."
     },
     "installDir": {
       "type": "string",

@@ -1,6 +1,6 @@
 # Game Compatibility Guide
 
-WinDoze uses LPAC sandboxing. Not every game will work without profile tuning. Use this guide to classify titles and adjust profiles.
+GameCrate uses LPAC sandboxing. Not every game will work without profile tuning. Use this guide to classify titles and adjust profiles.
 
 ## Compatibility tiers
 
@@ -40,7 +40,7 @@ WinDoze uses LPAC sandboxing. Not every game will work without profile tuning. U
 | Black screen / no GPU | Ensure `gpu: true` in profile (default); try updating graphics drivers |
 | "Cannot connect" / online fails | Enable `network` in profile |
 | Cannot write save | Add save path to `writablePaths` |
-| Anti-cheat error on launch | Not compatible — run outside WinDoze or wait for hypervisor-based approach |
+| Anti-cheat error on launch | Not compatible — run outside GameCrate or wait for hypervisor-based approach |
 | Missing DLL | Game may expect redistributables outside install dir — install VC++ runtimes on host (they load from System32) |
 
 ## Launcher integration (manual v0.1)
@@ -52,7 +52,7 @@ For Steam games, a typical flow:
 3. Enable `network` and `registryRead`
 4. Launch `Game.exe` directly, not `steam.exe` (avoids Steam singleton issues)
 
-Future WinDoze versions will automate launcher detection.
+Future GameCrate versions will automate launcher detection.
 
 ## Testing checklist
 

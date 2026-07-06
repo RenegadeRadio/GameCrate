@@ -1,11 +1,11 @@
-#include "windoze/ProfileStore.hpp"
+#include "gamecrate/ProfileStore.hpp"
 
 #include <ShlObj.h>
 
 #include <fstream>
 #include <sstream>
 
-namespace windoze {
+namespace gamecrate {
 
 namespace {
 
@@ -121,9 +121,9 @@ bool EnsureDirectory(const std::wstring& path) {
 std::wstring ProfileStore::ProfilesRoot() {
     wchar_t programData[MAX_PATH] = {};
     if (FAILED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return L"C:\\ProgramData\\WinDoze\\profiles";
+        return L"C:\\ProgramData\\GameCrate\\profiles";
     }
-    return std::wstring(programData) + L"\\WinDoze\\profiles";
+    return std::wstring(programData) + L"\\GameCrate\\profiles";
 }
 
 std::wstring ProfileStore::ProfilePath(const std::wstring& id) {
@@ -192,7 +192,7 @@ bool ProfileStore::Load(const std::wstring& id, SandboxProfile& out) {
         out.id = id;
     }
     if (out.moniker.empty()) {
-        out.moniker = L"WinDoze." + out.id;
+        out.moniker = L"GameCrate." + out.id;
     }
 
     return !out.executable.empty() || !out.installDir.empty();
@@ -246,4 +246,4 @@ std::vector<std::wstring> ProfileStore::ListProfiles() {
     return profiles;
 }
 
-}  // namespace windoze
+}  // namespace gamecrate

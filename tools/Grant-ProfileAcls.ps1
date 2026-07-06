@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Apply filesystem ACL grants for a WinDoze profile.
+    Apply filesystem ACL grants for a GameCrate profile.
 
 .PARAMETER ProfileId
     Profile identifier.
@@ -18,14 +18,14 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$windozeCandidates = @(
-    (Join-Path $PSScriptRoot "..\build\Release\windoze.exe"),
-    (Join-Path $PSScriptRoot "..\out\build\x64-Release\windoze.exe"),
-    "windoze.exe"
+$gamecrateCandidates = @(
+    (Join-Path $PSScriptRoot "..\build\Release\gamecrate.exe"),
+    (Join-Path $PSScriptRoot "..\out\build\x64-Release\gamecrate.exe"),
+    "gamecrate.exe"
 )
 
-$windoze = $windozeCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-if (-not $windoze) { throw "windoze.exe not found." }
+$gamecrate = $gamecrateCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $gamecrate) { throw "gamecrate.exe not found." }
 
-& $windoze grant --profile $ProfileId
+& $gamecrate grant --profile $ProfileId
 exit $LASTEXITCODE

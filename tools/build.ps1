@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Build windoze.exe on Windows with CMake + Visual Studio 2022.
+    Build gamecrate.exe on Windows with CMake + Visual Studio 2022.
 
 .EXAMPLE
     .\build.ps1
@@ -45,12 +45,12 @@ try {
     cmake --build $BuildDir --config $Configuration
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    $exe = Join-Path $repoRoot "$BuildDir\$Configuration\windoze.exe"
+    $exe = Join-Path $repoRoot "$BuildDir\$Configuration\gamecrate.exe"
     if (-not (Test-Path $exe)) {
-        $exe = Join-Path $repoRoot "$BuildDir\windoze.exe"
+        $exe = Join-Path $repoRoot "$BuildDir\gamecrate.exe"
     }
     if (-not (Test-Path $exe)) {
-        throw "Build finished but windoze.exe was not found under $BuildDir."
+        throw "Build finished but gamecrate.exe was not found under $BuildDir."
     }
 
     Write-Host ""

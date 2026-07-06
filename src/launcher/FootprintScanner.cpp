@@ -1,4 +1,4 @@
-#include "windoze/FootprintScanner.hpp"
+#include "gamecrate/FootprintScanner.hpp"
 
 #include <ShlObj.h>
 
@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-namespace windoze {
+namespace gamecrate {
 
 namespace {
 
@@ -217,7 +217,7 @@ std::vector<std::wstring> FootprintScanner::AllowedInstallRoots(
 
     const std::wstring programData = KnownFolderPath(CSIDL_COMMON_APPDATA);
     if (!programData.empty()) {
-        roots.push_back(programData + L"\\WinDoze\\" + profileId);
+        roots.push_back(programData + L"\\GameCrate\\" + profileId);
     }
 
     std::vector<std::wstring> normalized;
@@ -250,4 +250,4 @@ bool FootprintScanner::IsSuspiciousOutsidePath(const std::wstring& path) {
     return false;
 }
 
-}  // namespace windoze
+}  // namespace gamecrate

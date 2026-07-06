@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace windoze {
+namespace gamecrate {
 
 enum class PathAccess {
     Read,
@@ -29,4 +29,4 @@ public:
     static DWORD AccessMaskFor(PathAccess access);
 };
 
-}  // namespace windoze
+}  // namespace gamecrate

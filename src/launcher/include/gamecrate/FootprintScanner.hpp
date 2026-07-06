@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace windoze {
+namespace gamecrate {
 
 struct FileEntry {
     std::wstring path;
@@ -45,4 +45,4 @@ public:
     static bool IsSuspiciousOutsidePath(const std::wstring& path);
 };
 
-}  // namespace windoze
+}  // namespace gamecrate

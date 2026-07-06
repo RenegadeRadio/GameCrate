@@ -1,6 +1,6 @@
-# WinDoze Architecture
+# GameCrate Architecture
 
-WinDoze is a Windows game sandbox that runs each title inside a **Less-Privileged AppContainer (LPAC)** with explicit filesystem grants. The goal is simple: a game can only touch files you installed for it, plus its own isolated save/profile storage.
+GameCrate is a Windows game sandbox that runs each title inside a **Less-Privileged AppContainer (LPAC)** with explicit filesystem grants. The goal is simple: a game can only touch files you installed for it, plus its own isolated save/profile storage.
 
 ## Design goals
 
@@ -25,7 +25,7 @@ Games need low-latency GPU access, raw input, audio, and often kernel-mode anti-
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  windoze.exe CLI / future GUI                               │
+│  gamecrate.exe CLI / future GUI                               │
 ├─────────────────────────────────────────────────────────────┤
 │  Profile manager (JSON) — paths, capabilities, moniker      │
 ├─────────────────────────────────────────────────────────────┤
@@ -41,16 +41,16 @@ Games need low-latency GPU access, raw input, audio, and often kernel-mode anti-
 
 [AppContainers](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation) are the same mechanism UWP apps use. LPAC (`PROCESS_CREATION_ALL_APPLICATION_PACKAGES_OPT_OUT`) is stricter: no registry, COM, or filesystem access unless explicitly granted via capability SIDs or ACLs.
 
-Each game profile maps to one AppContainer moniker (e.g. `WinDoze.MyGame.ABC123`).
+Each game profile maps to one AppContainer moniker (e.g. `GameCrate.MyGame.ABC123`).
 
 ### Layer 2: Filesystem ACLs
 
-AppContainer processes are **denied by default** on paths that lack an ACE for their SID. WinDoze:
+AppContainer processes are **denied by default** on paths that lack an ACE for their SID. GameCrate:
 
 1. Derives the AppContainer SID from the profile moniker.
 2. Applies **allow** ACEs on:
    - Game install root (read + execute; write only if the game patches itself)
-   - Dedicated save/data directory under `%ProgramData%\WinDoze\<profile>\`
+   - Dedicated save/data directory under `%ProgramData%\GameCrate\<profile>\`
    - Optional extra paths declared in the profile (mods, shared assets)
 3. Does **not** grant access to user Documents, Desktop, other game folders, etc.
 
@@ -76,8 +76,8 @@ v1 uses explicit save directories. v2 can add registry virtualization and `%APPD
 ## Component layout
 
 ```
-windoze.exe          CLI entry point
-├── ProfileStore     Load/save JSON profiles under %ProgramData%\WinDoze\profiles\
+gamecrate.exe          CLI entry point
+├── ProfileStore     Load/save JSON profiles under %ProgramData%\GameCrate\profiles\
 ├── AclManager       Apply/remove filesystem ACEs for AppContainer SID
 └── AppContainerLauncher
                      CreateAppContainerProfile → CreateProcess with LPAC attributes
@@ -90,23 +90,23 @@ PowerShell helpers in `tools/` handle bulk ACL setup and guided game installatio
 ### 1. Create profile
 
 ```powershell
-windoze create-profile --name "Hollow Knight" --install-dir "D:\Games\HollowKnight"
+gamecrate create-profile --name "Hollow Knight" --install-dir "D:\Games\HollowKnight"
 ```
 
-Creates `%ProgramData%\WinDoze\profiles\hollow-knight.json` and registers the AppContainer moniker.
+Creates `%ProgramData%\GameCrate\profiles\hollow-knight.json` and registers the AppContainer moniker.
 
 ### 2. Install game (sandboxed)
 
 ```powershell
-windoze install --profile hollow-knight --installer "D:\Downloads\setup.exe"
+gamecrate install --profile hollow-knight --installer "D:\Downloads\setup.exe"
 ```
 
-Runs the installer inside the LPAC. Files land only where the installer can write — which is only granted paths. After install, `windoze` scans the install tree and locks ACLs to that footprint.
+Runs the installer inside the LPAC. Files land only where the installer can write — which is only granted paths. After install, `gamecrate` scans the install tree and locks ACLs to that footprint.
 
 ### 3. Launch
 
 ```powershell
-windoze launch --profile hollow-knight
+gamecrate launch --profile hollow-knight
 ```
 
 Spawns the game's executable with LPAC + profile capabilities. Child processes inherit the container.
@@ -114,14 +114,14 @@ Spawns the game's executable with LPAC + profile capabilities. Child processes i
 ### 4. Teardown
 
 ```powershell
-windoze destroy-profile --profile hollow-knight
+gamecrate destroy-profile --profile hollow-knight
 ```
 
 Removes custom ACLs, deletes the AppContainer profile, and optionally wipes sandbox data.
 
 ## Threat model (summary)
 
-**In scope — what WinDoze v1 protects against:**
+**In scope — what GameCrate v1 protects against:**
 
 - Game reading your Documents, SSH keys, browser profiles
 - Game modifying files outside its install/save dirs

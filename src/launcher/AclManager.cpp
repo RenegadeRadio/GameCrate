@@ -1,8 +1,8 @@
-#include "windoze/AclManager.hpp"
+#include "gamecrate/AclManager.hpp"
 
 #include <filesystem>
 
-namespace windoze {
+namespace gamecrate {
 
 DWORD AclManager::AccessMaskFor(PathAccess access) {
     switch (access) {
@@ -146,4 +146,4 @@ bool AclManager::RemoveAppContainerAccess(PSID appContainerSid, const std::wstri
     return setResult == ERROR_SUCCESS;
 }
 
-}  // namespace windoze
+}  // namespace gamecrate

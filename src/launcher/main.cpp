@@ -1,7 +1,7 @@
-#include "windoze/AclManager.hpp"
-#include "windoze/AppContainerLauncher.hpp"
-#include "windoze/InstallManager.hpp"
-#include "windoze/ProfileStore.hpp"
+#include "gamecrate/AclManager.hpp"
+#include "gamecrate/AppContainerLauncher.hpp"
+#include "gamecrate/InstallManager.hpp"
+#include "gamecrate/ProfileStore.hpp"
 
 #include <ShlObj.h>
 
@@ -13,15 +13,15 @@ namespace {
 
 void PrintUsage() {
     std::wcerr
-        << L"WinDoze — sandboxed game launcher for Windows\n\n"
+        << L"GameCrate — sandboxed game launcher for Windows\n\n"
         << L"Usage:\n"
-        << L"  windoze install --id <id> --name <name> --install-dir <path> --installer <path>\n"
-        << L"  windoze create-profile --id <id> --name <name> --install-dir <path> --executable <path>\n"
-        << L"  windoze launch --profile <id> [--no-wait]\n"
-        << L"  windoze grant --profile <id>\n"
-        << L"  windoze show-install-report --profile <id>\n"
-        << L"  windoze list-profiles\n"
-        << L"  windoze show-profile --profile <id>\n\n"
+        << L"  gamecrate install --id <id> --name <name> --install-dir <path> --installer <path>\n"
+        << L"  gamecrate create-profile --id <id> --name <name> --install-dir <path> --executable <path>\n"
+        << L"  gamecrate launch --profile <id> [--no-wait]\n"
+        << L"  gamecrate grant --profile <id>\n"
+        << L"  gamecrate show-install-report --profile <id>\n"
+        << L"  gamecrate list-profiles\n"
+        << L"  gamecrate show-profile --profile <id>\n\n"
         << L"Options for install:\n"
         << L"  --installer-args <args>  Arguments passed to the installer\n"
         << L"  --executable <path>      Skip auto-detection after install\n"
@@ -30,7 +30,7 @@ void PrintUsage() {
         << L"  --network                Allow network during install (not recommended)\n"
         << L"  --no-registry / --lpac-com / --no-gpu\n\n"
         << L"Options for create-profile:\n"
-        << L"  --save-dir <path>       Isolated save directory (default: %ProgramData%\\WinDoze\\<id>\\saves)\n"
+        << L"  --save-dir <path>       Isolated save directory (default: %ProgramData%\\GameCrate\\<id>\\saves)\n"
         << L"  --network               Grant internet and LAN capabilities\n"
         << L"  --no-registry           Do not grant registryRead (stricter, breaks many games)\n"
         << L"  --lpac-com              Grant COM capability for launcher-heavy titles\n"
@@ -47,13 +47,13 @@ std::wstring RequireArg(int argc, wchar_t** argv, int& index) {
 std::wstring DefaultSaveDir(const std::wstring& id) {
     wchar_t programData[MAX_PATH] = {};
     if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return std::wstring(programData) + L"\\WinDoze\\" + id + L"\\saves";
+        return std::wstring(programData) + L"\\GameCrate\\" + id + L"\\saves";
     }
-    return L"C:\\ProgramData\\WinDoze\\" + id + L"\\saves";
+    return L"C:\\ProgramData\\GameCrate\\" + id + L"\\saves";
 }
 
 int CreateProfile(int argc, wchar_t** argv) {
-    windoze::SandboxProfile profile;
+    gamecrate::SandboxProfile profile;
     profile.registryRead = true;
     profile.gpu = true;
 
@@ -86,7 +86,7 @@ int CreateProfile(int argc, wchar_t** argv) {
     }
 
     if (profile.moniker.empty()) {
-        profile.moniker = L"WinDoze." + profile.id;
+        profile.moniker = L"GameCrate." + profile.id;
     }
     if (profile.saveDir.empty()) {
         profile.saveDir = DefaultSaveDir(profile.id);
@@ -97,23 +97,23 @@ int CreateProfile(int argc, wchar_t** argv) {
 
     profile.writablePaths = {profile.installDir, profile.saveDir};
 
-    if (!windoze::ProfileStore::Save(profile)) {
+    if (!gamecrate::ProfileStore::Save(profile)) {
         std::wcerr << L"Failed to save profile.\n";
         return 1;
     }
 
     std::vector<SID_AND_ATTRIBUTES> capabilityAttributes;
-    std::vector<windoze::CapabilitySid> ownedCapabilities;
-    for (const auto& capabilityName : windoze::ProfileStore::CapabilitiesFor(profile)) {
-        windoze::CapabilitySid capability;
-        if (windoze::AppContainerLauncher::ResolveCapability(capabilityName, capability)) {
+    std::vector<gamecrate::CapabilitySid> ownedCapabilities;
+    for (const auto& capabilityName : gamecrate::ProfileStore::CapabilitiesFor(profile)) {
+        gamecrate::CapabilitySid capability;
+        if (gamecrate::AppContainerLauncher::ResolveCapability(capabilityName, capability)) {
             capabilityAttributes.push_back({capability.sid, capability.attributes});
             ownedCapabilities.push_back(std::move(capability));
         }
     }
 
     PSID packageSid = nullptr;
-    if (!windoze::AppContainerLauncher::CreateOrResolveProfile(
+    if (!gamecrate::AppContainerLauncher::CreateOrResolveProfile(
             profile.moniker, profile.name, capabilityAttributes, &packageSid)) {
         std::wcerr << L"Failed to register AppContainer profile.\n";
         return 1;
@@ -122,8 +122,8 @@ int CreateProfile(int argc, wchar_t** argv) {
         FreeSid(packageSid);
     }
 
-    if (!windoze::InstallManager::ApplyProfileAcls(profile, windoze::AclMode::Run)) {
-        std::wcerr << L"Profile saved but ACL grants failed. Re-run 'windoze grant --profile "
+    if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
+        std::wcerr << L"Profile saved but ACL grants failed. Re-run 'gamecrate grant --profile "
                    << profile.id << L"'.\n";
         return 1;
     }
@@ -133,7 +133,7 @@ int CreateProfile(int argc, wchar_t** argv) {
 }
 
 int InstallProfile(int argc, wchar_t** argv) {
-    windoze::InstallOptions options;
+    gamecrate::InstallOptions options;
     options.registryRead = true;
     options.gpu = true;
     options.network = false;
@@ -169,7 +169,7 @@ int InstallProfile(int argc, wchar_t** argv) {
         }
     }
 
-    const windoze::InstallResult result = windoze::InstallManager::Run(options);
+    const gamecrate::InstallResult result = gamecrate::InstallManager::Run(options);
 
     std::wcout << L"Installer exit code: " << result.installerExitCode << L"\n";
     std::wcout << L"Installed files: " << result.installedFiles.size() << L"\n";
@@ -225,28 +225,28 @@ int LaunchProfile(int argc, wchar_t** argv) {
         return 1;
     }
 
-    windoze::SandboxProfile profile;
-    if (!windoze::ProfileStore::Load(profileId, profile)) {
+    gamecrate::SandboxProfile profile;
+    if (!gamecrate::ProfileStore::Load(profileId, profile)) {
         std::wcerr << L"Profile not found: " << profileId << L"\n";
         return 1;
     }
 
-    if (!windoze::InstallManager::ApplyProfileAcls(profile, windoze::AclMode::Run)) {
+    if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
         std::wcerr << L"Warning: ACL grants may be incomplete.\n";
     }
 
-    windoze::LaunchOptions options;
+    gamecrate::LaunchOptions options;
     options.moniker = profile.moniker;
     options.displayName = profile.name;
     options.executable = profile.executable;
     options.arguments = profile.arguments;
-    options.capabilities = windoze::ProfileStore::CapabilitiesFor(profile);
+    options.capabilities = gamecrate::ProfileStore::CapabilitiesFor(profile);
     options.lessPrivileged = true;
     options.waitForExit = waitForExit;
     options.retainProfile = true;
     options.workingDirectory = profile.installDir;
 
-    const windoze::LaunchResult result = windoze::AppContainerLauncher::Launch(options);
+    const gamecrate::LaunchResult result = gamecrate::AppContainerLauncher::Launch(options);
     if (!result.success) {
         std::wcerr << result.message << L"\n";
         return static_cast<int>(result.errorCode);
@@ -273,13 +273,13 @@ int GrantProfile(int argc, wchar_t** argv) {
         return 1;
     }
 
-    windoze::SandboxProfile profile;
-    if (!windoze::ProfileStore::Load(profileId, profile)) {
+    gamecrate::SandboxProfile profile;
+    if (!gamecrate::ProfileStore::Load(profileId, profile)) {
         std::wcerr << L"Profile not found: " << profileId << L"\n";
         return 1;
     }
 
-    if (!windoze::InstallManager::ApplyProfileAcls(profile, windoze::AclMode::Run)) {
+    if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
         std::wcerr << L"Failed to apply ACL grants.\n";
         return 1;
     }
@@ -308,7 +308,7 @@ int ShowInstallReport(int argc, wchar_t** argv) {
     }
 
     const std::wstring reportPath =
-        std::wstring(programData) + L"\\WinDoze\\" + profileId + L"\\install-report.json";
+        std::wstring(programData) + L"\\GameCrate\\" + profileId + L"\\install-report.json";
 
     std::wifstream in(reportPath);
     if (!in.is_open()) {
@@ -323,15 +323,15 @@ int ShowInstallReport(int argc, wchar_t** argv) {
 }
 
 int ListProfiles() {
-    const auto profiles = windoze::ProfileStore::ListProfiles();
+    const auto profiles = gamecrate::ProfileStore::ListProfiles();
     if (profiles.empty()) {
         std::wcout << L"No profiles found.\n";
         return 0;
     }
 
     for (const auto& id : profiles) {
-        windoze::SandboxProfile profile;
-        if (windoze::ProfileStore::Load(id, profile)) {
+        gamecrate::SandboxProfile profile;
+        if (gamecrate::ProfileStore::Load(id, profile)) {
             std::wcout << id << L" — " << profile.name << L" (" << profile.installDir << L")\n";
         } else {
             std::wcout << id << L"\n";
@@ -353,8 +353,8 @@ int ShowProfile(int argc, wchar_t** argv) {
         return 1;
     }
 
-    windoze::SandboxProfile profile;
-    if (!windoze::ProfileStore::Load(profileId, profile)) {
+    gamecrate::SandboxProfile profile;
+    if (!gamecrate::ProfileStore::Load(profileId, profile)) {
         std::wcerr << L"Profile not found: " << profileId << L"\n";
         return 1;
     }

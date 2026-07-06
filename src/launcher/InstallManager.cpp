@@ -1,7 +1,7 @@
-#include "windoze/InstallManager.hpp"
+#include "gamecrate/InstallManager.hpp"
 
-#include "windoze/AclManager.hpp"
-#include "windoze/AppContainerLauncher.hpp"
+#include "gamecrate/AclManager.hpp"
+#include "gamecrate/AppContainerLauncher.hpp"
 
 #include <ShlObj.h>
 
@@ -9,16 +9,16 @@
 #include <fstream>
 #include <sstream>
 
-namespace windoze {
+namespace gamecrate {
 
 namespace {
 
 std::wstring ProfileDataRoot(const std::wstring& profileId) {
     wchar_t programData[MAX_PATH] = {};
     if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return std::wstring(programData) + L"\\WinDoze\\" + profileId;
+        return std::wstring(programData) + L"\\GameCrate\\" + profileId;
     }
-    return L"C:\\ProgramData\\WinDoze\\" + profileId;
+    return L"C:\\ProgramData\\GameCrate\\" + profileId;
 }
 
 std::wstring DefaultSaveDir(const std::wstring& id) {
@@ -242,7 +242,7 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     SandboxProfile profile;
     profile.id = normalized.id;
     profile.name = normalized.name;
-    profile.moniker = L"WinDoze." + normalized.id;
+    profile.moniker = L"GameCrate." + normalized.id;
     profile.installDir = normalized.installDir;
     profile.saveDir = normalized.saveDir;
     profile.executable = normalized.executable;
@@ -352,4 +352,4 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     return result;
 }
 
-}  // namespace windoze
+}  // namespace gamecrate

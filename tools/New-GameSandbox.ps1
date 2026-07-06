@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Guided setup for a new WinDoze game sandbox profile.
+    Guided setup for a new GameCrate game sandbox profile.
 
 .DESCRIPTION
     Creates a profile, applies ACL grants, and optionally launches the game.
@@ -48,19 +48,19 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-function Find-WinDozeExe {
+function Find-GameCrateExe {
     $candidates = @(
-        (Join-Path $PSScriptRoot "..\build\Release\windoze.exe"),
-        (Join-Path $PSScriptRoot "..\out\build\x64-Release\windoze.exe"),
-        "windoze.exe"
+        (Join-Path $PSScriptRoot "..\build\Release\gamecrate.exe"),
+        (Join-Path $PSScriptRoot "..\out\build\x64-Release\gamecrate.exe"),
+        "gamecrate.exe"
     )
     foreach ($path in $candidates) {
         if (Test-Path $path) { return (Resolve-Path $path).Path }
     }
-    throw "windoze.exe not found. Build the project first or add it to PATH."
+    throw "gamecrate.exe not found. Build the project first or add it to PATH."
 }
 
-$windoze = Find-WinDozeExe
+$gamecrate = Find-GameCrateExe
 
 if (-not (Test-Path $InstallDir)) {
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
@@ -86,18 +86,18 @@ $args = @(
 if ($Network) { $args += "--network" }
 if ($NoGpu) { $args += "--no-gpu" }
 
-Write-Host "Creating WinDoze profile '$Id'..."
-& $windoze @args
+Write-Host "Creating GameCrate profile '$Id'..."
+& $gamecrate @args
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "Applying ACL grants..."
-& $windoze grant --profile $Id
+& $gamecrate grant --profile $Id
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 if ($Launch) {
     Write-Host "Launching sandboxed game..."
-    & $windoze launch --profile $Id
+    & $gamecrate launch --profile $Id
     exit $LASTEXITCODE
 }
 
-Write-Host "Done. Launch with: windoze launch --profile $Id"
+Write-Host "Done. Launch with: gamecrate launch --profile $Id"

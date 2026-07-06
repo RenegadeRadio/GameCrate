@@ -10,7 +10,7 @@
 #pragma comment(lib, "Userenv.lib")
 #pragma comment(lib, "onecoreuap.lib")
 
-namespace windoze {
+namespace gamecrate {
 
 struct CapabilitySid {
     PSID sid = nullptr;
@@ -85,4 +85,4 @@ private:
         DWORD& outExitCode);
 };
 
-}  // namespace windoze
+}  // namespace gamecrate

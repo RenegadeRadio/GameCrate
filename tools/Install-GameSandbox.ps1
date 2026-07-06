@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Run a game installer inside a WinDoze sandbox and scan the install footprint.
+    Run a game installer inside a GameCrate sandbox and scan the install footprint.
 
 .EXAMPLE
     .\Install-GameSandbox.ps1 -Id "test-game" -Name "Test Game" `
@@ -35,20 +35,20 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-function Find-WinDozeExe {
+function Find-GameCrateExe {
     $candidates = @(
-        (Join-Path $PSScriptRoot "..\build\windoze.exe"),
-        (Join-Path $PSScriptRoot "..\build\Release\windoze.exe"),
-        (Join-Path $PSScriptRoot "..\out\build\x64-Release\windoze.exe"),
-        "windoze.exe"
+        (Join-Path $PSScriptRoot "..\build\gamecrate.exe"),
+        (Join-Path $PSScriptRoot "..\build\Release\gamecrate.exe"),
+        (Join-Path $PSScriptRoot "..\out\build\x64-Release\gamecrate.exe"),
+        "gamecrate.exe"
     )
     foreach ($path in $candidates) {
         if (Test-Path $path) { return (Resolve-Path $path).Path }
     }
-    throw "windoze.exe not found. Build the project first or add it to PATH."
+    throw "gamecrate.exe not found. Build the project first or add it to PATH."
 }
 
-$windoze = Find-WinDozeExe
+$gamecrate = Find-GameCrateExe
 
 $args = @(
     "install",
@@ -64,15 +64,15 @@ if ($Network) { $args += "--network" }
 if ($AllowOutsideWrites) { $args += "--allow-outside-writes" }
 
 Write-Host "Running sandboxed installer for '$Name'..."
-& $windoze @args
+& $gamecrate @args
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-& $windoze show-install-report --profile $Id
+& $gamecrate show-install-report --profile $Id
 
 if ($Launch) {
     Write-Host "Launching sandboxed game..."
-    & $windoze launch --profile $Id
+    & $gamecrate launch --profile $Id
     exit $LASTEXITCODE
 }
 
-Write-Host "Done. Launch with: windoze launch --profile $Id"
+Write-Host "Done. Launch with: gamecrate launch --profile $Id"

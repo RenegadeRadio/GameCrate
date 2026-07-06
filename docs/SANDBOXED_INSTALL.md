@@ -1,11 +1,11 @@
 # Sandboxed Install (v0.2)
 
-WinDoze v0.2 adds **`windoze install`** — run an untrusted installer inside LPAC, scan what it wrote, and block persistence outside the sandbox.
+GameCrate v0.2 adds **`gamecrate install`** — run an untrusted installer inside LPAC, scan what it wrote, and block persistence outside the sandbox.
 
 ## Command
 
 ```powershell
-windoze install `
+gamecrate install `
   --id my-game `
   --name "My Game" `
   --install-dir "D:\Sandbox\MyGame" `
@@ -24,23 +24,23 @@ Or use the helper:
 ```mermaid
 sequenceDiagram
     participant User
-    participant WinDoze
+    participant GameCrate
     participant LPAC as Windows LPAC
     participant FS as Filesystem
 
-    User->>WinDoze: install --installer setup.exe
-    WinDoze->>FS: Snapshot allowed + watch paths
-    WinDoze->>LPAC: Launch installer (network off by default)
+    User->>GameCrate: install --installer setup.exe
+    GameCrate->>FS: Snapshot allowed + watch paths
+    GameCrate->>LPAC: Launch installer (network off by default)
     LPAC->>FS: Writes only where ACLs allow
-    LPAC-->>WinDoze: Installer exits
-    WinDoze->>FS: Snapshot again + diff
-    WinDoze->>WinDoze: Detect game .exe, tighten ACLs
-    WinDoze-->>User: Report + profile ready
+    LPAC-->>GameCrate: Installer exits
+    GameCrate->>FS: Snapshot again + diff
+    GameCrate->>GameCrate: Detect game .exe, tighten ACLs
+    GameCrate-->>User: Report + profile ready
 ```
 
 ### 1. Install-phase ACLs
 
-The install directory gets **read/write/execute** so the installer can extract files. Save dir and `%ProgramData%\WinDoze\<id>\` are also writable.
+The install directory gets **read/write/execute** so the installer can extract files. Save dir and `%ProgramData%\GameCrate\<id>\` are also writable.
 
 ### 2. Footprint snapshots
 
@@ -48,7 +48,7 @@ The install directory gets **read/write/execute** so the installer can extract f
 
 - `--install-dir`
 - Save directory
-- `%ProgramData%\WinDoze\<id>\`
+- `%ProgramData%\GameCrate\<id>\`
 
 **Watch paths** (writes flagged as violations):
 
@@ -56,7 +56,7 @@ The install directory gets **read/write/execute** so the installer can extract f
 - `%APPDATA%`, `%LOCALAPPDATA%`
 - Desktop, Documents
 - Start Menu / Programs
-- `%ProgramData%` (outside the WinDoze profile subtree)
+- `%ProgramData%` (outside the GameCrate profile subtree)
 
 ### 3. Sandboxed installer launch
 
@@ -68,7 +68,7 @@ The installer runs in LPAC with **network disabled by default** to reduce instal
 - Flags any new files under watch paths
 - Marks **suspicious** paths (Startup, System32, Tasks, etc.)
 - Auto-detects the game `.exe` (skips `setup.exe`, `unins*.exe`, etc.)
-- Writes `%ProgramData%\WinDoze\<id>\install-report.json`
+- Writes `%ProgramData%\GameCrate\<id>\install-report.json`
 
 ### 5. ACL tightening
 
@@ -94,20 +94,20 @@ By default, install dir ACLs are tightened to **read/execute** after a successfu
 ## Viewing the report
 
 ```powershell
-windoze show-install-report --profile my-game
+gamecrate show-install-report --profile my-game
 ```
 
 ## Malware-focused workflow
 
-1. **Never** install untrusted games outside WinDoze first
-2. Run `windoze install` with network **off**
+1. **Never** install untrusted games outside GameCrate first
+2. Run `gamecrate install` with network **off**
 3. Review `install-report.json` — `outsideWrites` should be empty
 4. If clean, enable `--network` on the profile later if the game needs online play:
    ```powershell
    # Edit profile JSON: "network": true, then:
-   windoze grant --profile my-game
+   gamecrate grant --profile my-game
    ```
-5. Launch: `windoze launch --profile my-game`
+5. Launch: `gamecrate launch --profile my-game`
 
 ## Limitations (v0.2)
 

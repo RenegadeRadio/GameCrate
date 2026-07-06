@@ -1,4 +1,4 @@
-name: Build WinDoze
+name: Build GameCrate
 
 on:
   push:
@@ -29,9 +29,9 @@ jobs:
       - name: Verify binary
         shell: pwsh
         run: |
-          $exe = "build\windoze.exe"
+          $exe = "build\gamecrate.exe"
           if (-not (Test-Path $exe)) {
-            throw "windoze.exe was not produced at $exe"
+            throw "gamecrate.exe was not produced at $exe"
           }
           Get-Item $exe | Format-List FullName, Length, LastWriteTime
           & $exe list-profiles
@@ -39,9 +39,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windoze-windows-x64
+          name: gamecrate-windows-x64
           path: |
-            build/windoze.exe
+            build/gamecrate.exe
             profiles/
             tools/
           retention-days: 30

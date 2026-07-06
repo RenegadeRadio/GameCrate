@@ -1,8 +1,8 @@
-#include "windoze/AppContainerLauncher.hpp"
+#include "gamecrate/AppContainerLauncher.hpp"
 
 #include <sstream>
 
-namespace windoze {
+namespace gamecrate {
 
 namespace {
 
@@ -262,4 +262,4 @@ LaunchResult AppContainerLauncher::Launch(const LaunchOptions& options) {
     return launchResult;
 }
 
-}  // namespace windoze
+}  // namespace gamecrate

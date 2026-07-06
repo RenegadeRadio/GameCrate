@@ -10,7 +10,7 @@
 ## Trust boundaries
 
 ```
-[ Host Windows ] ── trust boundary ── [ WinDoze LPAC ] ── [ Game process tree ]
+[ Host Windows ] ── trust boundary ── [ GameCrate LPAC ] ── [ Game process tree ]
 ```
 
 The game and all its child processes are **untrusted**. The launcher and profile definitions are **trusted** (run with user consent, ideally code-signed in production).
@@ -36,7 +36,7 @@ The game and all its child processes are **untrusted**. The launcher and profile
 
 ### Anti-cheat and DRM
 
-Kernel anti-cheat installs drivers that expect full system access. These will fail or refuse to run inside WinDoze. This is intentional — you cannot simultaneously sandbox a game and grant anti-cheat kernel visibility.
+Kernel anti-cheat installs drivers that expect full system access. These will fail or refuse to run inside GameCrate. This is intentional — you cannot simultaneously sandbox a game and grant anti-cheat kernel visibility.
 
 ### Shared library probing
 
@@ -58,6 +58,6 @@ AppContainer escapes are rare but historically possible (patch Windows promptly)
 
 1. Create one profile per game — never share profiles across titles.
 2. Keep `network: false` for offline single-player games.
-3. Point saves to `%ProgramData%\WinDoze\<profile>\saves`, not `Documents`.
+3. Point saves to `%ProgramData%\GameCrate\<profile>\saves`, not `Documents`.
 4. Review `extraReadPaths` — never add `C:\Users` or drive roots.
-5. Run WinDoze launcher from a standard user account, not Administrator.
+5. Run GameCrate launcher from a standard user account, not Administrator.

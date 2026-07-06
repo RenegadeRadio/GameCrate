@@ -1,12 +1,12 @@
 #pragma once
 
-#include "windoze/FootprintScanner.hpp"
-#include "windoze/ProfileStore.hpp"
+#include "gamecrate/FootprintScanner.hpp"
+#include "gamecrate/ProfileStore.hpp"
 
 #include <string>
 #include <vector>
 
-namespace windoze {
+namespace gamecrate {
 
 enum class AclMode {
     Install,
@@ -48,4 +48,4 @@ public:
     static bool WriteReport(const InstallResult& result, const InstallOptions& options);
 };
 
-}  // namespace windoze
+}  // namespace gamecrate

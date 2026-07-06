@@ -1,11 +1,11 @@
-# WinDoze
+# GameCrate
 
-**WinDoze** is a Windows game sandbox that runs titles inside a [Less-Privileged AppContainer (LPAC)](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation). Each game only gets filesystem access to its install directory and isolated save storage — not your Documents, other games, or arbitrary drives.
+**GameCrate** is a Windows game sandbox that runs titles inside a [Less-Privileged AppContainer (LPAC)](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation). Each game only gets filesystem access to its install directory and isolated save storage — not your Documents, other games, or arbitrary drives.
 
 ## What this solves
 
 - Run untrusted or mod-heavy games without giving them the keys to your whole user profile
-- Keep per-game save data isolated under `%ProgramData%\WinDoze\<profile>\`
+- Keep per-game save data isolated under `%ProgramData%\GameCrate\<profile>\`
 - Install games into a sandbox so installers cannot spray files across the system
 
 ## What this does **not** solve (yet)
@@ -19,23 +19,23 @@ See [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) for tiered compatib
 ## Architecture
 
 ```
-windoze.exe  →  JSON profile  →  ACL grants  →  LPAC CreateProcess  →  game.exe
+gamecrate.exe  →  JSON profile  →  ACL grants  →  LPAC CreateProcess  →  game.exe
 ```
 
 Read the full design in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## How WinDoze runs
+## How GameCrate runs
 
 **v0.1 is a single CLI executable** — not a background app or VM.
 
-- You run `windoze.exe` when you want to create a profile or launch a game
+- You run `gamecrate.exe` when you want to create a profile or launch a game
 - It configures Windows LPAC + filesystem ACLs, spawns `game.exe`, then exits (or waits for the game)
-- The game window you see is the real game; WinDoze is the control plane, Windows is the sandbox runtime
+- The game window you see is the real game; GameCrate is the control plane, Windows is the sandbox runtime
 
 See [docs/HOW_IT_RUNS.md](docs/HOW_IT_RUNS.md) for the full picture, including desktop shortcut setup.
 
 ```
-You → windoze.exe launch --profile my-game → game.exe (sandboxed)
+You → gamecrate.exe launch --profile my-game → game.exe (sandboxed)
 ```
 
 Future versions will add a GUI tray app (v0.4). There is no kernel driver and no always-on service in v0.1.
@@ -48,7 +48,7 @@ Future versions will add a GUI tray app (v0.4). There is no kernel driver and no
 
 ## Build
 
-WinDoze uses Windows-only APIs (AppContainer, LPAC, ACLs) and **must be built on Windows** with MSVC.
+GameCrate uses Windows-only APIs (AppContainer, LPAC, ACLs) and **must be built on Windows** with MSVC.
 
 ### Option A — build on your PC
 
@@ -56,11 +56,11 @@ Prerequisites: Visual Studio 2022 with **Desktop development with C++**, and CMa
 
 ```powershell
 git clone <repo-url>
-cd WinDoze
+cd GameCrate
 .\tools\build.ps1
 ```
 
-Output: `build\Release\windoze.exe` (Visual Studio generator) or `build\windoze.exe` (Ninja).
+Output: `build\Release\gamecrate.exe` (Visual Studio generator) or `build\gamecrate.exe` (Ninja).
 
 Manual CMake:
 
@@ -71,11 +71,11 @@ cmake --build build --config Release
 
 ### Option B — download CI build
 
-Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads `windoze.exe` as an artifact.
+Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest` and uploads `gamecrate.exe` as an artifact.
 
-1. Open the repo on GitHub → **Actions** → **Build WinDoze** → latest green run
-2. Download the **windoze-windows-x64** artifact
-3. Unzip — `build\windoze.exe` is ready to use
+1. Open the repo on GitHub → **Actions** → **Build GameCrate** → latest green run
+2. Download the **gamecrate-windows-x64** artifact
+3. Unzip — `build\gamecrate.exe` is ready to use
 
 ### Cannot build on Linux/macOS
 
@@ -86,14 +86,14 @@ Cross-compiling is not supported — AppContainer APIs exist only on Windows.
 ### Sandboxed install (recommended for untrusted games)
 
 ```powershell
-.\build\windoze.exe install `
+.\build\gamecrate.exe install `
   --id my-game `
   --name "My Game" `
   --install-dir "D:\Sandbox\MyGame" `
   --installer "D:\Downloads\setup.exe"
 
-.\build\windoze.exe show-install-report --profile my-game
-.\build\windoze.exe launch --profile my-game
+.\build\gamecrate.exe show-install-report --profile my-game
+.\build\gamecrate.exe launch --profile my-game
 ```
 
 See [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) for the full install workflow.
@@ -102,14 +102,14 @@ See [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) for the full install 
 
 ```powershell
 # 1. Create a profile for an installed game
-.\build\Release\windoze.exe create-profile `
+.\build\Release\gamecrate.exe create-profile `
   --id hollow-knight `
   --name "Hollow Knight" `
   --install-dir "D:\Games\HollowKnight" `
   --executable "D:\Games\HollowKnight\hollow_knight.exe"
 
 # 2. Launch sandboxed
-.\build\Release\windoze.exe launch --profile hollow-knight
+.\build\Release\gamecrate.exe launch --profile hollow-knight
 
 # Or use the helper script
 .\tools\New-GameSandbox.ps1 -Id hollow-knight -Name "Hollow Knight" `
@@ -140,7 +140,7 @@ Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacM
 
 1. **LPAC token** — the game process is denied registry, COM, network, and filesystem access by default.
 2. **Capability SIDs** — profile opts into `registryRead`, `internetClient`, etc. when needed.
-3. **Filesystem ACLs** — WinDoze adds allow ACEs for the AppContainer SID only on install + save paths.
+3. **Filesystem ACLs** — GameCrate adds allow ACEs for the AppContainer SID only on install + save paths.
 
 Everything else on the system remains inaccessible unless it is world-readable (e.g. `C:\Windows\System32` for DLL loading).
 
