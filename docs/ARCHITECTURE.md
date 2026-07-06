@@ -69,9 +69,9 @@ System directories (`C:\Windows`, `C:\Program Files`) remain readable so games c
 
 Capabilities are declared in the profile JSON and passed to `CreateAppContainerProfile`.
 
-### Layer 4: Virtualized storage (future)
+### Layer 4: Virtualized storage (v0.3)
 
-v1 uses explicit save directories. v2 can add registry virtualization and `%APPDATA%` redirection similar to [AppContainer for legacy apps](https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-for-legacy-applications-).
+GameCrate redirects `%APPDATA%`, `%LOCALAPPDATA%`, and `%TEMP%` into `%ProgramData%\GameCrate\<id>\virtual\` via a custom environment block at launch/install. Install-time registry snapshots detect persistence keys in `HKCU`. See [VIRTUAL_STORAGE.md](VIRTUAL_STORAGE.md).
 
 ## Component layout
 
@@ -141,8 +141,8 @@ See [THREAT_MODEL.md](THREAT_MODEL.md) for detail.
 | Phase | Deliverable |
 |---|---|
 | **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI |
-| **v0.2 (current)** | Sandboxed installer + install footprint scanner |
-| v0.3 | Registry / AppData redirection |
+| **v0.2** | Sandboxed installer + install footprint scanner |
+| **v0.3 (current)** | AppData redirection + registry install scan + destroy-profile |
 | v0.4 | GUI tray app, Steam/Epic integration |
 | v1.0 | Optional kernel minifilter for deny-by-default on all volumes |
 

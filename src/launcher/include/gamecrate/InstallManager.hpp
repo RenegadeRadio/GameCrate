@@ -3,6 +3,7 @@
 #include "gamecrate/FootprintScanner.hpp"
 #include "gamecrate/ProfileStore.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,7 @@ struct InstallOptions {
     bool registryRead = true;
     bool lpacCom = false;
     bool gpu = true;
+    bool virtualizeAppData = true;
     bool failOnOutsideWrites = true;
     bool tightenAclsAfter = true;
 };
@@ -36,12 +38,17 @@ struct InstallResult {
     std::vector<std::wstring> installedFiles;
     std::vector<std::wstring> outsideWrites;
     std::vector<std::wstring> suspiciousOutsideWrites;
+    std::vector<std::wstring> registryChanges;
+    std::vector<std::wstring> outsideRegistryChanges;
+    std::vector<std::wstring> suspiciousRegistryChanges;
     std::wstring reportPath;
     std::wstring message;
 };
 
 class InstallManager {
 public:
+    static void ApplyVirtualStorage(SandboxProfile& profile);
+    static std::unique_ptr<wchar_t[]> BuildEnvironmentForProfile(const SandboxProfile& profile);
     static bool ApplyProfileAcls(const SandboxProfile& profile, AclMode mode);
     static InstallResult Run(const InstallOptions& options);
     static std::wstring DetectExecutable(const std::wstring& installDir);

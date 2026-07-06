@@ -11,6 +11,8 @@ add_executable(gamecrate
     src/launcher/ProfileStore.cpp
     src/launcher/FootprintScanner.cpp
     src/launcher/InstallManager.cpp
+    src/launcher/VirtualStorage.cpp
+    src/launcher/RegistryScanner.cpp
 )
 
 target_include_directories(gamecrate PRIVATE src/launcher/include)

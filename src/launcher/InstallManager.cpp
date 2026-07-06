@@ -2,6 +2,8 @@
 
 #include "gamecrate/AclManager.hpp"
 #include "gamecrate/AppContainerLauncher.hpp"
+#include "gamecrate/RegistryScanner.hpp"
+#include "gamecrate/VirtualStorage.hpp"
 
 #include <ShlObj.h>
 
@@ -87,6 +89,36 @@ bool RegisterProfile(const SandboxProfile& profile) {
 }
 
 }  // namespace
+
+void InstallManager::ApplyVirtualStorage(SandboxProfile& profile) {
+    if (!profile.virtualizeAppData) {
+        return;
+    }
+
+    VirtualStorage::Ensure(profile.id);
+    for (const auto& root : VirtualStorage::WritableRoots(profile.id)) {
+        const std::wstring normalizedRoot = PathUtils::Normalize(root);
+        bool alreadyGranted = false;
+        for (const auto& path : profile.writablePaths) {
+            if (PathUtils::Normalize(path) == normalizedRoot) {
+                alreadyGranted = true;
+                break;
+            }
+        }
+        if (!alreadyGranted) {
+            profile.writablePaths.push_back(root);
+        }
+    }
+}
+
+std::unique_ptr<wchar_t[]> InstallManager::BuildEnvironmentForProfile(const SandboxProfile& profile) {
+    if (!profile.virtualizeAppData) {
+        return nullptr;
+    }
+
+    const VirtualStorageLayout layout = VirtualStorage::Ensure(profile.id);
+    return VirtualStorage::BuildEnvironmentBlock(VirtualStorage::EnvironmentOverrides(layout));
+}
 
 bool InstallManager::ApplyProfileAcls(const SandboxProfile& profile, AclMode mode) {
     PSID packageSid = nullptr;
@@ -202,10 +234,19 @@ bool InstallManager::WriteReport(const InstallResult& result, const InstallOptio
     json << L"  \"installedFileCount\": " << result.installedFiles.size() << L",\n";
     json << L"  \"outsideWriteCount\": " << result.outsideWrites.size() << L",\n";
     json << L"  \"suspiciousOutsideWriteCount\": " << result.suspiciousOutsideWrites.size() << L",\n";
+    json << L"  \"registryChangeCount\": " << result.registryChanges.size() << L",\n";
+    json << L"  \"outsideRegistryChangeCount\": " << result.outsideRegistryChanges.size() << L",\n";
+    json << L"  \"suspiciousRegistryChangeCount\": " << result.suspiciousRegistryChanges.size()
+         << L",\n";
     json << L"  \"installedFiles\": " << WriteStringArrayJson(result.installedFiles) << L",\n";
     json << L"  \"outsideWrites\": " << WriteStringArrayJson(result.outsideWrites) << L",\n";
     json << L"  \"suspiciousOutsideWrites\": " << WriteStringArrayJson(result.suspiciousOutsideWrites)
-         << L"\n";
+         << L",\n";
+    json << L"  \"registryChanges\": " << WriteStringArrayJson(result.registryChanges) << L",\n";
+    json << L"  \"outsideRegistryChanges\": " << WriteStringArrayJson(result.outsideRegistryChanges)
+         << L",\n";
+    json << L"  \"suspiciousRegistryChanges\": "
+         << WriteStringArrayJson(result.suspiciousRegistryChanges) << L"\n";
     json << L"}\n";
 
     std::wofstream out(reportPath);
@@ -250,7 +291,9 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     profile.registryRead = normalized.registryRead;
     profile.lpacCom = normalized.lpacCom;
     profile.gpu = normalized.gpu;
+    profile.virtualizeAppData = normalized.virtualizeAppData;
     profile.writablePaths = {profile.installDir, profile.saveDir};
+    ApplyVirtualStorage(profile);
 
     if (!RegisterProfile(profile)) {
         result.message = L"Failed to register AppContainer profile.";
@@ -268,6 +311,7 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
 
     const FootprintSnapshot beforeAllowed = FootprintScanner::ScanRoots(allowedRoots);
     const FootprintSnapshot beforeWatch = FootprintScanner::ScanRoots(watchPaths);
+    const RegistrySnapshot beforeRegistry = RegistryScanner::CaptureWatchKeys();
 
     LaunchOptions launchOptions;
     launchOptions.moniker = profile.moniker;
@@ -279,6 +323,7 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     launchOptions.waitForExit = true;
     launchOptions.retainProfile = true;
     launchOptions.workingDirectory = normalized.installDir;
+    launchOptions.environmentBlock = BuildEnvironmentForProfile(profile);
 
     const LaunchResult launchResult = AppContainerLauncher::Launch(launchOptions);
     result.installerExitCode = launchResult.exitCode;
@@ -290,6 +335,7 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
 
     const FootprintSnapshot afterAllowed = FootprintScanner::ScanRoots(allowedRoots);
     const FootprintSnapshot afterWatch = FootprintScanner::ScanRoots(watchPaths);
+    const RegistrySnapshot afterRegistry = RegistryScanner::CaptureWatchKeys();
 
     const FootprintDiff allowedDiff = FootprintScanner::Compare(beforeAllowed, afterAllowed);
     const FootprintDiff watchDiff = FootprintScanner::Compare(beforeWatch, afterWatch);
@@ -311,6 +357,20 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         }
     }
 
+    const RegistryDiff registryDiff = RegistryScanner::Compare(beforeRegistry, afterRegistry);
+    for (const auto& entry : registryDiff.added) {
+        const std::wstring formatted = RegistryScanner::FormatEntry(entry);
+        result.registryChanges.push_back(formatted);
+        result.outsideRegistryChanges.push_back(formatted);
+        if (RegistryScanner::IsSuspiciousKey(entry.keyPath)) {
+            result.suspiciousRegistryChanges.push_back(formatted);
+        }
+    }
+    for (const auto& entry : registryDiff.modified) {
+        const std::wstring formatted = RegistryScanner::FormatEntry(entry);
+        result.registryChanges.push_back(formatted);
+    }
+
     if (profile.executable.empty()) {
         profile.executable = DetectExecutable(profile.installDir);
     }
@@ -324,9 +384,13 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         result.success = true;
     }
 
-    if (!result.outsideWrites.empty()) {
+    if (!result.outsideWrites.empty() || !result.outsideRegistryChanges.empty()) {
         result.success = false;
-        result.message = L"Detected file writes outside the sandbox footprint.";
+        if (!result.outsideWrites.empty()) {
+            result.message = L"Detected file writes outside the sandbox footprint.";
+        } else {
+            result.message = L"Detected registry changes outside the virtual sandbox.";
+        }
         if (!normalized.failOnOutsideWrites) {
             result.success = profile.executable.empty() ? false : true;
         }

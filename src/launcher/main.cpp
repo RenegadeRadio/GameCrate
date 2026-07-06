@@ -20,6 +20,7 @@ void PrintUsage() {
         << L"  gamecrate launch --profile <id> [--no-wait]\n"
         << L"  gamecrate grant --profile <id>\n"
         << L"  gamecrate show-install-report --profile <id>\n"
+        << L"  gamecrate destroy-profile --profile <id> [--wipe-data]\n"
         << L"  gamecrate list-profiles\n"
         << L"  gamecrate show-profile --profile <id>\n\n"
         << L"Options for install:\n"
@@ -28,13 +29,14 @@ void PrintUsage() {
         << L"  --allow-outside-writes   Warn on outside writes but do not fail\n"
         << L"  --keep-install-writable  Do not tighten install dir ACLs after install\n"
         << L"  --network                Allow network during install (not recommended)\n"
-        << L"  --no-registry / --lpac-com / --no-gpu\n\n"
+        << L"  --no-registry / --lpac-com / --no-gpu / --no-virtual-app-data\n\n"
         << L"Options for create-profile:\n"
         << L"  --save-dir <path>       Isolated save directory (default: %ProgramData%\\GameCrate\\<id>\\saves)\n"
         << L"  --network               Grant internet and LAN capabilities\n"
         << L"  --no-registry           Do not grant registryRead (stricter, breaks many games)\n"
         << L"  --lpac-com              Grant COM capability for launcher-heavy titles\n"
-        << L"  --no-gpu                Disable GPU capabilities (lpacPnpNotifications, lpacMedia)\n";
+        << L"  --no-gpu                Disable GPU capabilities (lpacPnpNotifications, lpacMedia)\n"
+        << L"  --no-virtual-app-data   Do not redirect APPDATA/LOCALAPPDATA into the sandbox\n";
 }
 
 std::wstring RequireArg(int argc, wchar_t** argv, int& index) {
@@ -56,6 +58,7 @@ int CreateProfile(int argc, wchar_t** argv) {
     gamecrate::SandboxProfile profile;
     profile.registryRead = true;
     profile.gpu = true;
+    profile.virtualizeAppData = true;
 
     for (int i = 2; i < argc; ++i) {
         const std::wstring arg = argv[i];
@@ -77,6 +80,8 @@ int CreateProfile(int argc, wchar_t** argv) {
             profile.lpacCom = true;
         } else if (arg == L"--no-gpu") {
             profile.gpu = false;
+        } else if (arg == L"--no-virtual-app-data") {
+            profile.virtualizeAppData = false;
         }
     }
 
@@ -96,6 +101,7 @@ int CreateProfile(int argc, wchar_t** argv) {
     }
 
     profile.writablePaths = {profile.installDir, profile.saveDir};
+    gamecrate::InstallManager::ApplyVirtualStorage(profile);
 
     if (!gamecrate::ProfileStore::Save(profile)) {
         std::wcerr << L"Failed to save profile.\n";
@@ -137,6 +143,7 @@ int InstallProfile(int argc, wchar_t** argv) {
     options.registryRead = true;
     options.gpu = true;
     options.network = false;
+    options.virtualizeAppData = true;
 
     for (int i = 2; i < argc; ++i) {
         const std::wstring arg = argv[i];
@@ -166,6 +173,8 @@ int InstallProfile(int argc, wchar_t** argv) {
             options.failOnOutsideWrites = false;
         } else if (arg == L"--keep-install-writable") {
             options.tightenAclsAfter = false;
+        } else if (arg == L"--no-virtual-app-data") {
+            options.virtualizeAppData = false;
         }
     }
 
@@ -174,6 +183,7 @@ int InstallProfile(int argc, wchar_t** argv) {
     std::wcout << L"Installer exit code: " << result.installerExitCode << L"\n";
     std::wcout << L"Installed files: " << result.installedFiles.size() << L"\n";
     std::wcout << L"Outside writes: " << result.outsideWrites.size() << L"\n";
+    std::wcout << L"Registry changes: " << result.registryChanges.size() << L"\n";
 
     if (!result.executable.empty()) {
         std::wcout << L"Executable: " << result.executable << L"\n";
@@ -193,6 +203,20 @@ int InstallProfile(int argc, wchar_t** argv) {
         std::wcerr << L"\nSuspicious outside writes:\n";
         for (const auto& path : result.suspiciousOutsideWrites) {
             std::wcerr << L"  " << path << L"\n";
+        }
+    }
+
+    if (!result.outsideRegistryChanges.empty()) {
+        std::wcerr << L"\nRegistry changes detected:\n";
+        for (const auto& entry : result.outsideRegistryChanges) {
+            std::wcerr << L"  " << entry << L"\n";
+        }
+    }
+
+    if (!result.suspiciousRegistryChanges.empty()) {
+        std::wcerr << L"\nSuspicious registry changes:\n";
+        for (const auto& entry : result.suspiciousRegistryChanges) {
+            std::wcerr << L"  " << entry << L"\n";
         }
     }
 
@@ -231,6 +255,8 @@ int LaunchProfile(int argc, wchar_t** argv) {
         return 1;
     }
 
+    gamecrate::InstallManager::ApplyVirtualStorage(profile);
+
     if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
         std::wcerr << L"Warning: ACL grants may be incomplete.\n";
     }
@@ -245,6 +271,7 @@ int LaunchProfile(int argc, wchar_t** argv) {
     options.waitForExit = waitForExit;
     options.retainProfile = true;
     options.workingDirectory = profile.installDir;
+    options.environmentBlock = gamecrate::InstallManager::BuildEnvironmentForProfile(profile);
 
     const gamecrate::LaunchResult result = gamecrate::AppContainerLauncher::Launch(options);
     if (!result.success) {
@@ -278,6 +305,8 @@ int GrantProfile(int argc, wchar_t** argv) {
         std::wcerr << L"Profile not found: " << profileId << L"\n";
         return 1;
     }
+
+    gamecrate::InstallManager::ApplyVirtualStorage(profile);
 
     if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
         std::wcerr << L"Failed to apply ACL grants.\n";
@@ -368,7 +397,39 @@ int ShowProfile(int argc, wchar_t** argv) {
                << L"network: " << (profile.network ? L"true" : L"false") << L"\n"
                << L"registryRead: " << (profile.registryRead ? L"true" : L"false") << L"\n"
                << L"gpu: " << (profile.gpu ? L"true" : L"false") << L"\n"
+               << L"virtualizeAppData: " << (profile.virtualizeAppData ? L"true" : L"false") << L"\n"
                << L"lpacCom: " << (profile.lpacCom ? L"true" : L"false") << L"\n";
+    return 0;
+}
+
+int DestroyProfile(int argc, wchar_t** argv) {
+    std::wstring profileId;
+    bool wipeData = false;
+
+    for (int i = 2; i < argc; ++i) {
+        const std::wstring arg = argv[i];
+        if (arg == L"--profile") {
+            profileId = RequireArg(argc, argv, i);
+        } else if (arg == L"--wipe-data") {
+            wipeData = true;
+        }
+    }
+
+    if (profileId.empty()) {
+        std::wcerr << L"destroy-profile requires --profile <id>.\n";
+        return 1;
+    }
+
+    if (!gamecrate::ProfileStore::Destroy(profileId, wipeData)) {
+        std::wcerr << L"Failed to destroy profile '" << profileId << L"'.\n";
+        return 1;
+    }
+
+    std::wcout << L"Destroyed profile '" << profileId << L"'";
+    if (wipeData) {
+        std::wcout << L" and removed sandbox data";
+    }
+    std::wcout << L".\n";
     return 0;
 }
 
@@ -396,6 +457,9 @@ int wmain(int argc, wchar_t** argv) {
         }
         if (command == L"show-install-report") {
             return ShowInstallReport(argc, argv);
+        }
+        if (command == L"destroy-profile") {
+            return DestroyProfile(argc, argv);
         }
         if (command == L"list-profiles") {
             return ListProfiles();

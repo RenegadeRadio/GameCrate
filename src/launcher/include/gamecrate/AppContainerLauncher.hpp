@@ -4,6 +4,7 @@
 #include <UserEnv.h>
 #include <sddl.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -56,6 +57,7 @@ struct LaunchOptions {
     bool waitForExit = true;
     bool retainProfile = true;
     std::wstring workingDirectory;
+    std::unique_ptr<wchar_t[]> environmentBlock;
 };
 
 struct LaunchResult {

@@ -63,6 +63,11 @@
       "type": "boolean",
       "default": true,
       "description": "Grant lpacPnpNotifications and lpacMedia for DirectX/GPU adapter access."
+    },
+    "virtualizeAppData": {
+      "type": "boolean",
+      "default": true,
+      "description": "Redirect APPDATA, LOCALAPPDATA, TEMP, and TMP into the sandbox virtual store."
     }
   },
   "additionalProperties": false

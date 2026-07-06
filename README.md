@@ -133,6 +133,7 @@ Game profiles enable GPU capabilities by default (`lpacPnpNotifications`, `lpacM
 | `launch` | Start the game inside LPAC |
 | `grant` | Re-apply filesystem ACL grants |
 | `show-install-report` | Print install footprint report |
+| `destroy-profile` | Remove profile; use `--wipe-data` to delete sandbox files |
 | `list-profiles` | List installed profiles |
 | `show-profile` | Print profile details |
 
@@ -157,7 +158,7 @@ tools/          PowerShell setup helpers
 
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
 - [x] v0.2 — Sandboxed installer + install footprint scanner
-- [ ] v0.3 — Registry / AppData redirection
+- [x] v0.3 — AppData redirection, registry install scan, destroy-profile
 - [ ] v0.4 — GUI + launcher integration
 
 ## License

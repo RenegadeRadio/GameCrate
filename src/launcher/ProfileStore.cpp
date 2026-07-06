@@ -1,7 +1,9 @@
 #include "gamecrate/ProfileStore.hpp"
 
 #include <ShlObj.h>
+#include <UserEnv.h>
 
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -153,7 +155,8 @@ bool ProfileStore::Save(const SandboxProfile& profile) {
     json << L"  \"network\": " << (profile.network ? L"true" : L"false") << L",\n";
     json << L"  \"registryRead\": " << (profile.registryRead ? L"true" : L"false") << L",\n";
     json << L"  \"lpacCom\": " << (profile.lpacCom ? L"true" : L"false") << L",\n";
-    json << L"  \"gpu\": " << (profile.gpu ? L"true" : L"false") << L"\n";
+    json << L"  \"gpu\": " << (profile.gpu ? L"true" : L"false") << L",\n";
+    json << L"  \"virtualizeAppData\": " << (profile.virtualizeAppData ? L"true" : L"false") << L"\n";
     json << L"}\n";
 
     std::wofstream out(ProfilePath(profile.id));
@@ -187,6 +190,7 @@ bool ProfileStore::Load(const std::wstring& id, SandboxProfile& out) {
     out.registryRead = ReadBool(json, L"registryRead", true);
     out.lpacCom = ReadBool(json, L"lpacCom", false);
     out.gpu = ReadBool(json, L"gpu", true);
+    out.virtualizeAppData = ReadBool(json, L"virtualizeAppData", true);
 
     if (out.id.empty()) {
         out.id = id;
@@ -244,6 +248,27 @@ std::vector<std::wstring> ProfileStore::ListProfiles() {
 
     FindClose(findHandle);
     return profiles;
+}
+
+bool ProfileStore::Destroy(const std::wstring& id, bool wipeData) {
+    SandboxProfile profile;
+    if (Load(id, profile)) {
+        DeleteAppContainerProfile(profile.moniker.c_str());
+    }
+
+    const std::wstring profileFile = ProfilePath(id);
+    std::error_code ec;
+    std::filesystem::remove(profileFile, ec);
+
+    if (wipeData) {
+        wchar_t programData[MAX_PATH] = {};
+        if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
+            const std::wstring dataRoot = std::wstring(programData) + L"\\GameCrate\\" + id;
+            std::filesystem::remove_all(dataRoot, ec);
+        }
+    }
+
+    return !Exists(id);
 }
 
 }  // namespace gamecrate

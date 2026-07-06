@@ -109,9 +109,11 @@ gamecrate show-install-report --profile my-game
    ```
 5. Launch: `gamecrate launch --profile my-game`
 
-## Limitations (v0.2)
+## Limitations (v0.3)
 
-- Registry persistence is not yet scanned (filesystem only) — planned v0.3
-- Watch-path scans can take time on large `%LOCALAPPDATA%` trees
+- Registry writes are **detected**, not fully redirected — review `outsideRegistryChanges` in install reports
+- Watch-path filesystem scans can take time on large `%LOCALAPPDATA%` trees
 - Installers that require admin elevation outside the sandbox may fail
 - Some installers spawn external processes that are not sandboxed
+
+See [VIRTUAL_STORAGE.md](VIRTUAL_STORAGE.md) for AppData layout and registry scanning details.

@@ -175,7 +175,7 @@ DWORD AppContainerLauncher::LaunchProcess(
             nullptr,
             FALSE,
             EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT,
-            nullptr,
+            options.environmentBlock ? options.environmentBlock.get() : nullptr,
             workingDirectory,
             reinterpret_cast<LPSTARTUPINFOW>(&startupInfo),
             &procInfo)) {

@@ -17,5 +17,6 @@
   "network": false,
   "registryRead": true,
   "lpacCom": false,
-  "gpu": true
+  "gpu": true,
+  "virtualizeAppData": true
 }

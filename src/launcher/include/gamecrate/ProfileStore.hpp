@@ -19,6 +19,7 @@ struct SandboxProfile {
     bool registryRead = true;
     bool lpacCom = false;
     bool gpu = true;
+    bool virtualizeAppData = true;
 };
 
 class ProfileStore {
@@ -30,6 +31,7 @@ public:
     static bool Exists(const std::wstring& id);
     static std::vector<std::wstring> CapabilitiesFor(const SandboxProfile& profile);
     static std::vector<std::wstring> ListProfiles();
+    static bool Destroy(const std::wstring& id, bool wipeData);
 };
 
 }  // namespace gamecrate
