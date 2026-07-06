@@ -5,15 +5,16 @@ GameCrate ships a WPF tray application that wraps the `gamecrate.exe` CLI. Use i
 ## Requirements
 
 - Windows 10 1809+ or Windows 11 (x64)
-- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (framework-dependent build)
+- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) — only if you build the GUI yourself with `--self-contained false`
+- **GitHub Releases** builds are self-contained; no separate .NET install needed
 - `gamecrate.exe` in the same folder as `GameCrate.Gui.exe`, or on your `PATH`
 
 ## Running
 
-From a CI artifact or local build:
+From a [GitHub Release](https://github.com/RenegadeRadio/GameCrate/releases) or local build:
 
 ```powershell
-cd build\package
+cd C:\Tools\GameCrate
 .\GameCrate.Gui.exe
 ```
 

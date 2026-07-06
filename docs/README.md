@@ -11,7 +11,7 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 | **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI | [HOW_IT_RUNS.md](HOW_IT_RUNS.md), [ARCHITECTURE.md](ARCHITECTURE.md) |
 | **v0.2** | Sandboxed installer + footprint scanner | [SANDBOXED_INSTALL.md](SANDBOXED_INSTALL.md) |
 | **v0.3** | AppData virtualization, registry install scan, `destroy-profile` | [VIRTUAL_STORAGE.md](VIRTUAL_STORAGE.md) |
-| **v0.4** | WPF tray GUI (`GameCrate.Gui.exe`) | [GUI.md](GUI.md) |
+| **v0.4** | WPF tray GUI, [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) zip | [GUI.md](GUI.md) |
 | **v0.5** (planned) | Steam/Epic launcher integration | — |
 
 ## Start here
@@ -38,3 +38,4 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 - Example profile: [`profiles/examples/offline-indie.json`](../profiles/examples/offline-indie.json)
 - PowerShell helpers: [`tools/`](../tools/)
 - CI workflow: [`.github/workflows/build.yml`](../.github/workflows/build.yml)
+- Windows download: [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) (`GameCrate-windows-x64.zip`)

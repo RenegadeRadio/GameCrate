@@ -46,8 +46,26 @@ There is no kernel driver and no always-on service.
 ## Requirements
 
 - Windows 10 version 1809+ or Windows 11 (x64)
-- Visual Studio 2022 with **Desktop development with C++** workload, or Build Tools equivalent
-- CMake 3.20+
+- **Pre-built download:** no compiler or .NET install needed — see [Download](#download-pre-built-windows-build) below
+- **Build from source:** Visual Studio 2022 with **Desktop development with C++**, CMake 3.20+, and [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) for the GUI
+
+## Download (pre-built Windows build)
+
+**Easiest way to run GameCrate in a VM** — no build tools required.
+
+1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** (latest: `v0.4-latest` rolling build from `main`)
+2. Download **`GameCrate-windows-x64.zip`**
+3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
+4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)
+
+The release zip is **self-contained** (includes .NET for the GUI). You only need Windows 10 1809+ x64.
+
+```powershell
+cd C:\Tools\GameCrate
+.\GameCrate.Gui.exe
+```
+
+Every push to `main` updates the `v0.4-latest` release. Tagged releases (`v0.4.0`, etc.) are also published when created.
 
 ## Build
 
@@ -86,28 +104,16 @@ cmake -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
 ```
 
-### Option B — download CI build
+### Option B — GitHub Actions artifact (developers)
 
-Every push to `main` or `cursor/**` branches runs [GitHub Actions](.github/workflows/build.yml) on `windows-latest`.
+CI also uploads a build artifact on every run. Useful if you need a specific commit:
 
-| Trigger | Branches / events |
-|---|---|
-| Push | `main`, `cursor/**` |
-| Pull request | into `main` |
-| Manual | `workflow_dispatch` |
+1. Open **Actions** → **Build GameCrate** → latest green run on `main`
+2. Download artifact **gamecrate-windows-x64** (contains the same zip)
 
-The workflow builds with **CMake + Ninja + MSVC**, publishes the WPF GUI, and uploads artifact **gamecrate-windows-x64**:
+### Option C — build from source
 
-| Path | Contents |
-|---|---|
-| `build/gamecrate.exe` | CLI |
-| `build/package/GameCrate.Gui.exe` | GUI (+ .NET dependencies) |
-| `build/package/gamecrate.exe` | CLI copy for GUI folder |
-| `profiles/`, `tools/` | Schema, examples, PowerShell helpers |
-
-1. Open the repo on GitHub → **Actions** → **Build GameCrate** → latest green run
-2. Download **gamecrate-windows-x64**
-3. Unzip — run `build\package\GameCrate.Gui.exe` (GUI) or `build\gamecrate.exe` (CLI)
+See Option A above and [docs/CLI.md](docs/CLI.md#build-output-paths).
 
 ### Cannot build on Linux/macOS
 
