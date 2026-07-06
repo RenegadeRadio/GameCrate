@@ -35,16 +35,19 @@ void ScanDirectoryRecursive(
     std::filesystem::directory_options options =
         std::filesystem::directory_options::skip_permission_denied;
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(root, options, ec)) {
+    std::filesystem::recursive_directory_iterator it(root, options, ec);
+    const std::filesystem::recursive_directory_iterator end;
+    for (; it != end; it.increment(ec)) {
         if (ec) {
             break;
         }
 
-        if (maxDepth >= 0 && entry.depth() > maxDepth) {
-            entry.disable_recursion_pending();
+        if (maxDepth >= 0 && it.depth() > maxDepth) {
+            it.disable_recursion_pending();
             continue;
         }
 
+        const auto& entry = *it;
         if (!entry.is_regular_file(ec)) {
             continue;
         }

@@ -145,13 +145,18 @@ std::wstring InstallManager::DetectExecutable(const std::wstring& installDir) {
     const std::filesystem::directory_options options =
         std::filesystem::directory_options::skip_permission_denied;
 
-    for (const auto& entry :
-         std::filesystem::recursive_directory_iterator(installDir, options, ec)) {
-        if (ec || !entry.is_regular_file(ec)) {
+    std::filesystem::recursive_directory_iterator it(installDir, options, ec);
+    const std::filesystem::recursive_directory_iterator end;
+    for (; it != end; it.increment(ec)) {
+        if (ec) {
+            break;
+        }
+        const auto& entry = *it;
+        if (!entry.is_regular_file(ec)) {
             continue;
         }
-        if (entry.depth() > 3) {
-            entry.disable_recursion_pending();
+        if (it.depth() > 3) {
+            it.disable_recursion_pending();
             continue;
         }
         if (entry.path().extension() != L".exe") {
@@ -164,7 +169,7 @@ std::wstring InstallManager::DetectExecutable(const std::wstring& installDir) {
         }
 
         candidates.push_back(
-            {entry.path().wstring(), entry.file_size(ec), static_cast<int>(entry.depth())});
+            {entry.path().wstring(), entry.file_size(ec), static_cast<int>(it.depth())});
     }
 
     if (candidates.empty()) {
