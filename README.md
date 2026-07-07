@@ -58,7 +58,9 @@ There is no kernel driver and no always-on service.
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)
 
-The release zip is **self-contained** (includes .NET for the GUI). You only need Windows 10 1809+ x64.
+The release zip is **self-contained** (includes .NET for the GUI). `gamecrate.exe` is statically linked (v0.4.2+) so no VC++ Redistributable is needed. You only need Windows 10 1809+ x64.
+
+> **On v0.4.0 / v0.4.1:** if you see exit code `-1073741515`, install [VC++ Redistributable x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) or upgrade to **v0.4.2+**.
 
 ```powershell
 cd C:\Tools\GameCrate

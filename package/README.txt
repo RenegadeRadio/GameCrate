@@ -17,6 +17,7 @@ Requirements
 ------------
 - Windows 10 version 1809+ or Windows 11 (x64)
 - No separate .NET install required (self-contained GUI build)
+- gamecrate.exe is statically linked (v0.4.2+) — no VC++ Redistributable needed
 - Standard user account (not required to run as Administrator)
 
 Files
