@@ -1,0 +1,43 @@
+name: Validate winget manifest
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+    paths:
+      - "winget/**"
+      - ".github/workflows/winget-validate.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "winget/**"
+      - ".github/workflows/winget-validate.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Find manifest versions
+        id: versions
+        shell: pwsh
+        run: |
+          $dirs = Get-ChildItem -Path winget\manifests\r\RenegadeRadio\GameCrate -Directory -ErrorAction SilentlyContinue
+          if (-not $dirs) { throw "No winget manifest versions found" }
+          $paths = $dirs.FullName -join ';'
+          "paths=$paths" >> $env:GITHUB_OUTPUT
+
+      - name: Validate each manifest
+        shell: pwsh
+        run: |
+          $paths = "${{ steps.versions.outputs.paths }}" -split ';'
+          foreach ($manifest in $paths) {
+            Write-Host "Validating $manifest"
+            $output = winget validate --manifest $manifest 2>&1 | Out-String
+            Write-Host $output
+            if ($output -notmatch 'Manifest validation succeeded') {
+              throw "winget validate failed for $manifest"
+            }
+          }

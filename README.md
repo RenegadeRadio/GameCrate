@@ -53,6 +53,21 @@ There is no kernel driver and no always-on service.
 
 **Easiest way to run GameCrate in a VM** — no build tools required.
 
+### winget (Windows 10 1809+)
+
+```powershell
+# From repo manifest (works today):
+git clone https://github.com/RenegadeRadio/GameCrate.git
+winget install --manifest .\GameCrate\winget\manifests\r\RenegadeRadio\GameCrate\0.4.8
+
+# After listing in microsoft/winget-pkgs:
+winget install RenegadeRadio.GameCrate
+```
+
+See [docs/WINGET.md](docs/WINGET.md) for details and winget-pkgs submission.
+
+### Manual zip
+
 1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.8`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
 2. Download **`GameCrate-windows-x64.zip`**
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)

@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+
+PackageIdentifier: RenegadeRadio.GameCrate
+PackageVersion: 0.4.8
+Platform:
+  - Windows.Desktop
+MinimumOSVersion: 10.0.17763.0
+InstallerType: zip
+NestedInstallerType: portable
+NestedInstallerFiles:
+  - RelativeFilePath: GameCrate\gamecrate.exe
+    PortableCommandAlias: gamecrate
+  - RelativeFilePath: GameCrate\GameCrate.Gui.exe
+    PortableCommandAlias: gamecrate-gui
+Commands:
+  - gamecrate
+  - gamecrate-gui
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/RenegadeRadio/GameCrate/releases/download/v0.4.8/GameCrate-windows-x64.zip
+    InstallerSha256: C5C74646D2DEB64935EFC086FED4844370F48D2BCCAF330561F862164FC60BD5
+ManifestType: installer
+ManifestVersion: 1.6.0

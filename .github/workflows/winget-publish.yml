@@ -1,0 +1,23 @@
+name: Publish winget manifest PR
+
+# Opens a PR to microsoft/winget-pkgs when a versioned release is published.
+# Requires repository secret WINGET_TOKEN (GitHub PAT with public_repo scope).
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  winget-pkgs-pr:
+    if: ${{ !github.event.release.prerelease && github.event.release.tag_name != 'v0.4-latest' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish manifest to winget-pkgs
+        uses: vedantmg0009/winget-releaser@main
+        with:
+          identifier: RenegadeRadio.GameCrate
+          installers-regex: 'GameCrate-windows-x64\.zip$'
+          token: ${{ secrets.WINGET_TOKEN }}

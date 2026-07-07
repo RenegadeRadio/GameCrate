@@ -101,6 +101,14 @@ jobs:
         run: |
           Compress-Archive -Path release/GameCrate -DestinationPath GameCrate-windows-x64.zip -Force
 
+      - name: Refresh winget manifest (tagged releases)
+        if: startsWith(github.ref, 'refs/tags/v') && github.ref_name != 'v0.4-latest'
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          .\tools\update-winget-manifest.ps1 -Version $ver -ZipPath GameCrate-windows-x64.zip
+          winget validate --manifest "winget\manifests\r\RenegadeRadio\GameCrate\$ver"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
