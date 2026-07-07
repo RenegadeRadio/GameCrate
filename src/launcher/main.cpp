@@ -180,6 +180,10 @@ int InstallProfile(int argc, wchar_t** argv) {
 
     const gamecrate::InstallResult result = gamecrate::InstallManager::Run(options);
 
+    if (!result.success && !result.message.empty()) {
+        std::wcerr << result.message << L"\n";
+    }
+
     std::wcout << L"Installer exit code: " << result.installerExitCode << L"\n";
     std::wcout << L"Installed files: " << result.installedFiles.size() << L"\n";
     std::wcout << L"Outside writes: " << result.outsideWrites.size() << L"\n";
@@ -206,26 +210,20 @@ int InstallProfile(int argc, wchar_t** argv) {
         }
     }
 
-    if (!result.outsideRegistryChanges.empty()) {
-        std::wcerr << L"\nRegistry changes detected:\n";
-        for (const auto& entry : result.outsideRegistryChanges) {
-            std::wcerr << L"  " << entry << L"\n";
-        }
-    }
-
     if (!result.suspiciousRegistryChanges.empty()) {
-        std::wcerr << L"\nSuspicious registry changes:\n";
+        std::wcerr << L"\nSuspicious registry persistence keys:\n";
         for (const auto& entry : result.suspiciousRegistryChanges) {
             std::wcerr << L"  " << entry << L"\n";
         }
+    } else if (!result.registryChanges.empty()) {
+        std::wcout << L"\nRegistry changes (informational, install not blocked):\n";
+        for (const auto& entry : result.registryChanges) {
+            std::wcout << L"  " << entry << L"\n";
+        }
     }
 
-    if (!result.message.empty()) {
-        if (result.success) {
-            std::wcout << result.message << L"\n";
-        } else {
-            std::wcerr << result.message << L"\n";
-        }
+    if (result.success && !result.message.empty()) {
+        std::wcout << result.message << L"\n";
     }
 
     return result.success ? 0 : 1;

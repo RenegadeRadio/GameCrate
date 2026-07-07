@@ -403,14 +403,18 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     for (const auto& entry : registryDiff.added) {
         const std::wstring formatted = RegistryScanner::FormatEntry(entry);
         result.registryChanges.push_back(formatted);
-        result.outsideRegistryChanges.push_back(formatted);
         if (RegistryScanner::IsSuspiciousKey(entry.keyPath)) {
             result.suspiciousRegistryChanges.push_back(formatted);
+            result.outsideRegistryChanges.push_back(formatted);
         }
     }
     for (const auto& entry : registryDiff.modified) {
         const std::wstring formatted = RegistryScanner::FormatEntry(entry);
         result.registryChanges.push_back(formatted);
+        if (RegistryScanner::IsSuspiciousKey(entry.keyPath)) {
+            result.suspiciousRegistryChanges.push_back(formatted);
+            result.outsideRegistryChanges.push_back(formatted);
+        }
     }
 
     if (profile.executable.empty()) {
@@ -426,12 +430,12 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         result.success = true;
     }
 
-    if (!result.outsideWrites.empty() || !result.outsideRegistryChanges.empty()) {
+    if (!result.outsideWrites.empty() || !result.suspiciousRegistryChanges.empty()) {
         result.success = false;
         if (!result.outsideWrites.empty()) {
             result.message = L"Detected file writes outside the sandbox footprint.";
         } else {
-            result.message = L"Detected registry changes outside the virtual sandbox.";
+            result.message = L"Detected suspicious registry persistence keys (Run/RunOnce).";
         }
         if (!normalized.failOnOutsideWrites) {
             result.success = profile.executable.empty() ? false : true;

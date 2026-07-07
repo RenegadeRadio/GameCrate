@@ -58,7 +58,7 @@ Entries under Run/RunOnce are flagged as **suspicious**.
 
 ### Important limitation
 
-v0.3 **detects** registry persistence; it does not yet **redirect** all registry writes. Installers with `registryRead` can still touch the real `HKCU` hive. Review `outsideRegistryChanges` in the install report — any non-empty list means the installer modified your real registry.
+Installs **fail** only on filesystem writes outside the sandbox or **suspicious** registry keys (Run/RunOnce persistence). Normal `HKCU\Software\...` installer keys are recorded in `registryChanges` for review but do not block install.
 
 Future versions may add hive redirection; for now, treat registry changes like filesystem outside writes.
 
@@ -83,7 +83,8 @@ Full reference: [CLI.md](CLI.md#destroy-profile).
 1. `gamecrate install` with network off and virtualization on (defaults)
 2. Check install report:
    - `outsideWrites` should be **0**
-   - `outsideRegistryChanges` should be **empty** (or only benign keys you expect)
+   - `outsideRegistryChanges` should be **empty** (suspicious persistence keys only)
+   - `registryChanges` may list benign installer keys — review but not a failure by itself
    - `suspiciousRegistryChanges` should be **empty**
 3. If clean, `gamecrate launch --profile <id>`
 

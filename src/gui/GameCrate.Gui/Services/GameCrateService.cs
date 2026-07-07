@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using GameCrate.Gui.Models;
@@ -57,7 +58,7 @@ public sealed class GameCrateService
         GameCrateResult result = await RunAsync(cancellationToken, "list-profiles", "--json").ConfigureAwait(false);
         if (!result.Success)
         {
-            throw new InvalidOperationException(result.StandardError.Trim());
+            throw new InvalidOperationException(result.FormatOutput());
         }
 
         List<GameProfile>? profiles = JsonSerializer.Deserialize<List<GameProfile>>(result.StandardOutput, JsonOptions);
@@ -124,9 +125,19 @@ public sealed class GameCrateService
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true,
-            StandardOutputEncoding = Encoding.UTF8,
-            StandardErrorEncoding = Encoding.UTF8,
         };
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // gamecrate.exe emits UTF-16 via std::wcout/wcerr; UTF-8 mis-decodes to empty text in the GUI.
+            startInfo.StandardOutputEncoding = Encoding.Unicode;
+            startInfo.StandardErrorEncoding = Encoding.Unicode;
+        }
+        else
+        {
+            startInfo.StandardOutputEncoding = Encoding.UTF8;
+            startInfo.StandardErrorEncoding = Encoding.UTF8;
+        }
 
         foreach (string arg in args)
         {

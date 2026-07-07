@@ -128,7 +128,7 @@ public partial class InstallWindow : Window
 
             InstallStatus.Text = "Install failed.";
             MessageBox.Show(
-                result.StandardError.Length > 0 ? result.StandardError : result.StandardOutput,
+                result.FormatOutput("Install failed. Check the install report or run gamecrate install from PowerShell."),
                 "Install failed",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);

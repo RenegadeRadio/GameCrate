@@ -96,7 +96,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                MessageBox.Show(result.StandardError, "Launch failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(result.FormatOutput(), "Launch failed", MessageBoxButton.OK, MessageBoxImage.Warning);
                 StatusText.Text = "Launch failed.";
             }
         }
@@ -134,11 +134,7 @@ public partial class MainWindow : Window
             var result = await _service.ShowInstallReportAsync(profile.Id);
             if (!result.Success)
             {
-                MessageBox.Show(
-                    result.StandardError.Length > 0 ? result.StandardError : "No install report found.",
-                    "Install report",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                MessageBox.Show(result.FormatOutput("No install report found."), "Install report", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -189,7 +185,7 @@ public partial class MainWindow : Window
             }
             else
             {
-                MessageBox.Show(result.StandardError, "Remove failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(result.FormatOutput(), "Remove failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
         catch (Exception ex)
