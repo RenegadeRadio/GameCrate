@@ -21,6 +21,7 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 | [CLI.md](CLI.md) | Full command reference, flags, JSON output, install reports |
 | [HOW_IT_RUNS.md](HOW_IT_RUNS.md) | What runs when you launch a game; CLI vs GUI |
 | [GUI.md](GUI.md) | Tray app usage, install wizard, troubleshooting |
+| [TESTING.md](TESTING.md) | **Hand to testers** — download, paths, install/play, feedback |
 | [SANDBOXED_INSTALL.md](SANDBOXED_INSTALL.md) | Untrusted installer workflow |
 | [GAME_COMPATIBILITY.md](GAME_COMPATIBILITY.md) | Which games work; capability tuning |
 
@@ -38,5 +39,6 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 - Example profile: [`profiles/examples/offline-indie.json`](../profiles/examples/offline-indie.json)
 - PowerShell helpers: [`tools/`](../tools/)
 - CI workflow: [`.github/workflows/build.yml`](../.github/workflows/build.yml)
-- Windows download: [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) (`GameCrate-windows-x64.zip`; latest stable: `v0.4.0`)
+- Windows download: [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) (`GameCrate-windows-x64.zip`; latest stable: **v0.4.6**)
+- Tester guide: [TESTING.md](TESTING.md)
 - Cursor Cloud agents: [`AGENTS.md`](../AGENTS.md) (Windows-only build notes)

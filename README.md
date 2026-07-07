@@ -53,7 +53,7 @@ There is no kernel driver and no always-on service.
 
 **Easiest way to run GameCrate in a VM** — no build tools required.
 
-1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.0`** (stable) or **`v0.4-latest`** (rolling build from `main`)
+1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.6`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
 2. Download **`GameCrate-windows-x64.zip`**
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)
@@ -199,6 +199,7 @@ See **[docs/CLI.md](docs/CLI.md)** for full flags, JSON output, and install repo
 | [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) | Untrusted installer workflow |
 | [docs/VIRTUAL_STORAGE.md](docs/VIRTUAL_STORAGE.md) | AppData redirect, registry scan, teardown |
 | [docs/GUI.md](docs/GUI.md) | Tray application |
+| [docs/TESTING.md](docs/TESTING.md) | Tester handout — install paths, feedback |
 | [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) | Game tiers and tuning |
 | [profiles/schema.json](profiles/schema.json) | Profile JSON schema |
 
