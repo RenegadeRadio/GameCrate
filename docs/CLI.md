@@ -57,7 +57,7 @@ gamecrate create-profile `
 | Flag | Default | Description |
 |---|---|---|
 | `--id`, `--name`, `--install-dir`, `--executable` | *(required)* | Profile identity and paths |
-| `--save-dir` | `%ProgramData%\GameCrate\<id>\saves` | Save directory |
+| `--save-dir` | `%LOCALAPPDATA%\GameCrate\<id>\saves` | Save directory |
 | `--network` | off | `internetClient` + `privateNetworkClientServer` |
 | `--no-registry` | off | Stricter; breaks many games |
 | `--lpac-com` | off | COM capability |

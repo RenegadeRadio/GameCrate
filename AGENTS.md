@@ -36,6 +36,7 @@ setup gap. Do not attempt to "fix" the environment to build it on Linux.
 ### Repo conventions
 
 - Product name: **GameCrate** (`gamecrate.exe`, `GameCrate.Gui.exe`). Formerly WinDoze.
+- Product scope: **standalone/portable games only** — not Steam/Epic/GOG integration. See `docs/SCOPE.md`.
 - Data paths: `%LOCALAPPDATA%\GameCrate\`.
 - Feature branches: `cursor/<descriptive-name>-ae40`.
 - Default branch: `main`.

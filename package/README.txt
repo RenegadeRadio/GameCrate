@@ -1,4 +1,4 @@
-GameCrate v0.4.6 — Windows x64
+GameCrate v0.4.7 — Windows x64
 ================================
 
 Quick start (GUI)
@@ -18,6 +18,10 @@ Install folder (you choose — AppData is NOT required)
 GameCrate data (automatic)
 --------------------------
   %LOCALAPPDATA%\GameCrate\                 profiles, saves, install reports
+
+## Scope
+
+GameCrate is for **standalone games** — not Steam/Epic/GOG. See docs\SCOPE.md
 
 Testing guide (share with testers)
 ----------------------------------
