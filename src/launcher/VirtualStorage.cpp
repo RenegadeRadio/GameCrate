@@ -1,6 +1,7 @@
+#include "gamecrate/DataPaths.hpp"
 #include "gamecrate/VirtualStorage.hpp"
 
-#include <ShlObj.h>
+#include <UserEnv.h>
 
 #include <filesystem>
 #include <unordered_map>
@@ -8,14 +9,6 @@
 namespace gamecrate {
 
 namespace {
-
-std::wstring ProgramDataRoot() {
-    wchar_t programData[MAX_PATH] = {};
-    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return programData;
-    }
-    return L"C:\\ProgramData";
-}
 
 bool EnsureDirectory(const std::wstring& path) {
     std::error_code ec;
@@ -26,7 +19,7 @@ bool EnsureDirectory(const std::wstring& path) {
 }  // namespace
 
 std::wstring VirtualStorage::ProfileRoot(const std::wstring& profileId) {
-    return ProgramDataRoot() + L"\\GameCrate\\" + profileId + L"\\virtual";
+    return DataPaths::ProfileDataRoot(profileId) + L"\\virtual";
 }
 
 VirtualStorageLayout VirtualStorage::Ensure(const std::wstring& profileId) {

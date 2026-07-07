@@ -35,7 +35,7 @@ Closing the main window exits the app (there is no hide-to-tray-only mode in v0.
 |---|---|
 | **Install game** | `gamecrate install ...` |
 | **Play** | `gamecrate launch --profile <id> --no-wait` |
-| **Install report** | Opens `%ProgramData%\GameCrate\<id>\install-report.json` |
+| **Install report** | Opens `%LOCALAPPDATA%\GameCrate\<id>\install-report.json` |
 | **Remove profile** | `gamecrate destroy-profile --profile <id> --wipe-data` |
 | **Refresh** | `gamecrate list-profiles --json` |
 
@@ -66,10 +66,14 @@ Copy-Item build\gamecrate.exe build\package\gamecrate.exe
 
 **"gamecrate.exe was not found"** — copy `gamecrate.exe` into the same directory as `GameCrate.Gui.exe`.
 
+**JSON error on startup (`0xE0` is an invalid start of a value)** — update to the latest release. The GUI and CLI must agree on UTF-8 output when `gamecrate.exe` is spawned as a child process.
+
+**"Access is denied" during install** — use an install folder you own (e.g. `D:\Games\MyGame`), not `C:\Program Files`. Run GameCrate as a standard user; some installers cannot run inside the LPAC sandbox and need a portable setup instead.
+
 **Install hangs** — some installers need elevation or network. Check the install report after completion; re-run from the CLI with `--network` if the game requires online activation during setup.
 
 **Game won't start from GUI** — verify the profile with `gamecrate show-profile --profile <id>`. Anti-cheat and some DRM titles cannot run inside LPAC.
 
-**Remove profile** — deletes the profile, revokes ACLs, and wipes `%ProgramData%\GameCrate\<id>\`. Game files in the install directory are **not** deleted.
+**Remove profile** — deletes the profile, revokes ACLs, and wipes `%LOCALAPPDATA%\GameCrate\<id>\`. Game files in the install directory are **not** deleted.
 
 See also [CLI.md](CLI.md) and [HOW_IT_RUNS.md](HOW_IT_RUNS.md).

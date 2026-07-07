@@ -23,8 +23,13 @@ struct AclGrant {
 
 class AclManager {
 public:
-    static bool GrantAppContainerAccess(PSID appContainerSid, const AclGrant& grant);
+    static DWORD GrantAppContainerAccess(PSID appContainerSid, const AclGrant& grant);
     static bool GrantAppContainerAccess(PSID appContainerSid, const std::vector<AclGrant>& grants);
+    static bool GrantAppContainerAccess(
+        PSID appContainerSid,
+        const std::vector<AclGrant>& grants,
+        std::wstring& failedPath,
+        DWORD& failedError);
     static bool RemoveAppContainerAccess(PSID appContainerSid, const std::wstring& path);
     static DWORD AccessMaskFor(PathAccess access);
 };

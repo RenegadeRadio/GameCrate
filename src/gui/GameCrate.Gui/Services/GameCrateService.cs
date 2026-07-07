@@ -1,7 +1,5 @@
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
 using GameCrate.Gui.Models;
 
@@ -61,8 +59,25 @@ public sealed class GameCrateService
             throw new InvalidOperationException(result.FormatOutput());
         }
 
-        List<GameProfile>? profiles = JsonSerializer.Deserialize<List<GameProfile>>(result.StandardOutput, JsonOptions);
-        return profiles ?? [];
+        string json = result.StandardOutput.Trim();
+        if (string.IsNullOrEmpty(json))
+        {
+            return [];
+        }
+
+        try
+        {
+            List<GameProfile>? profiles = JsonSerializer.Deserialize<List<GameProfile>>(json, JsonOptions);
+            return profiles ?? [];
+        }
+        catch (JsonException ex)
+        {
+            string preview = json.Length > 200 ? json[..200] + "..." : json;
+            throw new InvalidOperationException(
+                "gamecrate.exe returned invalid JSON for list-profiles.\n\n" +
+                $"Parser error: {ex.Message}\n\nOutput preview:\n{preview}",
+                ex);
+        }
     }
 
     public Task<GameCrateResult> LaunchAsync(string profileId, CancellationToken cancellationToken = default) =>
@@ -127,18 +142,6 @@ public sealed class GameCrateService
             CreateNoWindow = true,
         };
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            // gamecrate.exe emits UTF-16 via std::wcout/wcerr; UTF-8 mis-decodes to empty text in the GUI.
-            startInfo.StandardOutputEncoding = Encoding.Unicode;
-            startInfo.StandardErrorEncoding = Encoding.Unicode;
-        }
-        else
-        {
-            startInfo.StandardOutputEncoding = Encoding.UTF8;
-            startInfo.StandardErrorEncoding = Encoding.UTF8;
-        }
-
         foreach (string arg in args)
         {
             startInfo.ArgumentList.Add(arg);
@@ -150,15 +153,15 @@ public sealed class GameCrateService
             throw new InvalidOperationException("Failed to start gamecrate.exe.");
         }
 
-        Task<string> stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        Task<string> stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
+        Task<byte[]> stdoutTask = CliEncoding.ReadAllBytesAsync(process.StandardOutput.BaseStream, cancellationToken);
+        Task<byte[]> stderrTask = CliEncoding.ReadAllBytesAsync(process.StandardError.BaseStream, cancellationToken);
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
         return new GameCrateResult
         {
             ExitCode = process.ExitCode,
-            StandardOutput = await stdoutTask.ConfigureAwait(false),
-            StandardError = await stderrTask.ConfigureAwait(false),
+            StandardOutput = CliEncoding.Decode(await stdoutTask.ConfigureAwait(false)),
+            StandardError = CliEncoding.Decode(await stderrTask.ConfigureAwait(false)),
         };
     }
 }

@@ -18,15 +18,18 @@ DWORD AclManager::AccessMaskFor(PathAccess access) {
     }
 }
 
-bool AclManager::GrantAppContainerAccess(PSID appContainerSid, const AclGrant& grant) {
+DWORD AclManager::GrantAppContainerAccess(PSID appContainerSid, const AclGrant& grant) {
     if (!appContainerSid || grant.path.empty()) {
-        return false;
+        return ERROR_INVALID_PARAMETER;
     }
 
     std::error_code ec;
     std::filesystem::path target(grant.path);
     if (!std::filesystem::exists(target, ec)) {
         std::filesystem::create_directories(target, ec);
+        if (ec) {
+            return static_cast<DWORD>(ec.value());
+        }
     }
 
     PSECURITY_DESCRIPTOR securityDescriptor = nullptr;
@@ -44,7 +47,7 @@ bool AclManager::GrantAppContainerAccess(PSID appContainerSid, const AclGrant& g
         &securityDescriptor);
 
     if (result != ERROR_SUCCESS) {
-        return false;
+        return result;
     }
 
     EXPLICIT_ACCESSW explicitAccess{};
@@ -56,10 +59,11 @@ bool AclManager::GrantAppContainerAccess(PSID appContainerSid, const AclGrant& g
     explicitAccess.Trustee.ptstrName = static_cast<LPWSTR>(appContainerSid);
 
     if (SetEntriesInAclW(1, &explicitAccess, oldDacl, &newDacl) != ERROR_SUCCESS) {
+        const DWORD error = GetLastError();
         if (securityDescriptor) {
             LocalFree(securityDescriptor);
         }
-        return false;
+        return error;
     }
 
     const DWORD setResult = SetNamedSecurityInfoW(
@@ -78,15 +82,31 @@ bool AclManager::GrantAppContainerAccess(PSID appContainerSid, const AclGrant& g
         LocalFree(securityDescriptor);
     }
 
-    return setResult == ERROR_SUCCESS;
+    return setResult;
 }
 
 bool AclManager::GrantAppContainerAccess(PSID appContainerSid, const std::vector<AclGrant>& grants) {
-    bool ok = true;
+    std::wstring failedPath;
+    DWORD failedError = ERROR_SUCCESS;
+    return GrantAppContainerAccess(appContainerSid, grants, failedPath, failedError);
+}
+
+bool AclManager::GrantAppContainerAccess(
+    PSID appContainerSid,
+    const std::vector<AclGrant>& grants,
+    std::wstring& failedPath,
+    DWORD& failedError) {
+    failedPath.clear();
+    failedError = ERROR_SUCCESS;
     for (const auto& grant : grants) {
-        ok = GrantAppContainerAccess(appContainerSid, grant) && ok;
+        const DWORD error = GrantAppContainerAccess(appContainerSid, grant);
+        if (error != ERROR_SUCCESS) {
+            failedPath = grant.path;
+            failedError = error;
+            return false;
+        }
     }
-    return ok;
+    return true;
 }
 
 bool AclManager::RemoveAppContainerAccess(PSID appContainerSid, const std::wstring& path) {
