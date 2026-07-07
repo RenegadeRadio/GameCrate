@@ -20,6 +20,7 @@ add_executable(gamecrate
     src/launcher/RegistryScanner.cpp
     src/launcher/DataPaths.cpp
     src/launcher/Win32Error.cpp
+    src/launcher/ConsoleIo.cpp
 )
 
 target_include_directories(gamecrate PRIVATE src/launcher/include)
