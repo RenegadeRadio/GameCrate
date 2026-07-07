@@ -75,7 +75,6 @@ Platform:
 MinimumOSVersion: 10.0.17763.0
 InstallerType: zip
 NestedInstallerType: portable
-ArchiveBinariesDependOnPath: true
 NestedInstallerFiles:
   - RelativeFilePath: GameCrate\gamecrate.exe
     PortableCommandAlias: gamecrate

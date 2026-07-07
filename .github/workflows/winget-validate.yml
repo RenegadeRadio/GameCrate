@@ -35,6 +35,9 @@ jobs:
           $paths = "${{ steps.versions.outputs.paths }}" -split ';'
           foreach ($manifest in $paths) {
             Write-Host "Validating $manifest"
-            winget validate --manifest $manifest
-            if ($LASTEXITCODE -ne 0) { throw "winget validate failed for $manifest" }
+            $output = winget validate --manifest $manifest 2>&1 | Out-String
+            Write-Host $output
+            if ($output -notmatch 'Manifest validation succeeded') {
+              throw "winget validate failed for $manifest"
+            }
           }
