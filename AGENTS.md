@@ -36,6 +36,6 @@ setup gap. Do not attempt to "fix" the environment to build it on Linux.
 ### Repo conventions
 
 - Product name: **GameCrate** (`gamecrate.exe`, `GameCrate.Gui.exe`). Formerly WinDoze.
-- Data paths: `%ProgramData%\GameCrate\`.
+- Data paths: `%LOCALAPPDATA%\GameCrate\`.
 - Feature branches: `cursor/<descriptive-name>-ae40`.
 - Default branch: `main`.

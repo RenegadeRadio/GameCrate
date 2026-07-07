@@ -2,7 +2,7 @@
 
 Binary: **`gamecrate.exe`**. Run `gamecrate` with no arguments to print usage.
 
-Profiles are stored at `%ProgramData%\GameCrate\profiles\<id>.json`. Per-profile data lives under `%ProgramData%\GameCrate\<id>\`.
+Profiles are stored at `%LOCALAPPDATA%\GameCrate\profiles\<id>.json`. Per-profile data lives under `%LOCALAPPDATA%\GameCrate\<id>\`.
 
 ## Commands
 
@@ -26,7 +26,7 @@ gamecrate install `
 | `--installer` | *(required)* | Path to installer `.exe` |
 | `--installer-args` | empty | Arguments passed to the installer |
 | `--executable` | auto-detect | Game `.exe` after install |
-| `--save-dir` | `%ProgramData%\GameCrate\<id>\saves` | Isolated save directory |
+| `--save-dir` | `%LOCALAPPDATA%\GameCrate\<id>\saves` | Isolated save directory |
 | `--allow-outside-writes` | off | Warn on outside writes but do not fail |
 | `--keep-install-writable` | off | Skip post-install ACL tightening |
 | `--network` | off | Allow network during install |
@@ -98,7 +98,7 @@ Print install footprint JSON to stdout.
 gamecrate show-install-report --profile my-game
 ```
 
-Report file: `%ProgramData%\GameCrate\<id>\install-report.json`
+Report file: `%LOCALAPPDATA%\GameCrate\<id>\install-report.json`
 
 #### Install report fields
 
@@ -134,7 +134,7 @@ gamecrate destroy-profile --profile my-game [--wipe-data]
 | Flag | Description |
 |---|---|
 | `--profile` | Profile ID to remove |
-| `--wipe-data` | Delete `%ProgramData%\GameCrate\<id>\` (saves, virtual AppData, reports) |
+| `--wipe-data` | Delete `%LOCALAPPDATA%\GameCrate\<id>\` (saves, virtual AppData, reports) |
 
 **What is removed:** AppContainer registration, profile JSON, ACL ACEs on granted paths (when the moniker resolves).
 
@@ -163,8 +163,8 @@ Array of profile objects (same fields as `profiles/schema.json`):
     "installDir": "D:\\Sandbox\\MyGame",
     "executable": "D:\\Sandbox\\MyGame\\game.exe",
     "arguments": "",
-    "saveDir": "C:\\ProgramData\\GameCrate\\my-game\\saves",
-    "writablePaths": ["D:\\Sandbox\\MyGame", "C:\\ProgramData\\GameCrate\\my-game\\saves"],
+    "saveDir": "C:\\Users\\you\\AppData\\Local\\GameCrate\\my-game\\saves",
+    "writablePaths": ["D:\\Sandbox\\MyGame", "C:\\Users\\you\\AppData\\Local\\GameCrate\\my-game\\saves"],
     "readablePaths": [],
     "network": false,
     "registryRead": true,

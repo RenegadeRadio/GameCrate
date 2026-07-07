@@ -7,7 +7,7 @@
 ## What this solves
 
 - Run untrusted or mod-heavy games without giving them the keys to your whole user profile
-- Keep per-game save data isolated under `%ProgramData%\GameCrate\<profile>\`
+- Keep per-game save data isolated under `%LOCALAPPDATA%\GameCrate\<profile>\`
 - Install games into a sandbox so installers cannot spray files across the system
 
 ## What this does **not** solve (yet)

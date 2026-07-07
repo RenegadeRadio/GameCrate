@@ -1,9 +1,8 @@
 #include "gamecrate/AclManager.hpp"
 #include "gamecrate/AppContainerLauncher.hpp"
+#include "gamecrate/DataPaths.hpp"
 #include "gamecrate/InstallManager.hpp"
 #include "gamecrate/ProfileStore.hpp"
-
-#include <ShlObj.h>
 
 #include <fstream>
 #include <iostream>
@@ -31,7 +30,7 @@ void PrintUsage() {
         << L"  --network                Allow network during install (not recommended)\n"
         << L"  --no-registry / --lpac-com / --no-gpu / --no-virtual-app-data\n\n"
         << L"Options for create-profile:\n"
-        << L"  --save-dir <path>       Isolated save directory (default: %ProgramData%\\GameCrate\\<id>\\saves)\n"
+        << L"  --save-dir <path>       Isolated save directory (default: %LOCALAPPDATA%\\GameCrate\\<id>\\saves)\n"
         << L"  --network               Grant internet and LAN capabilities\n"
         << L"  --no-registry           Do not grant registryRead (stricter, breaks many games)\n"
         << L"  --lpac-com              Grant COM capability for launcher-heavy titles\n"
@@ -47,11 +46,7 @@ std::wstring RequireArg(int argc, wchar_t** argv, int& index) {
 }
 
 std::wstring DefaultSaveDir(const std::wstring& id) {
-    wchar_t programData[MAX_PATH] = {};
-    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return std::wstring(programData) + L"\\GameCrate\\" + id + L"\\saves";
-    }
-    return L"C:\\ProgramData\\GameCrate\\" + id + L"\\saves";
+    return gamecrate::DataPaths::DefaultSaveDir(id);
 }
 
 int CreateProfile(int argc, wchar_t** argv) {
@@ -328,14 +323,8 @@ int ShowInstallReport(int argc, wchar_t** argv) {
         return 1;
     }
 
-    wchar_t programData[MAX_PATH] = {};
-    if (FAILED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        std::wcerr << L"Failed to resolve ProgramData path.\n";
-        return 1;
-    }
-
     const std::wstring reportPath =
-        std::wstring(programData) + L"\\GameCrate\\" + profileId + L"\\install-report.json";
+        gamecrate::DataPaths::ProfileDataRoot(profileId) + L"\\install-report.json";
 
     std::wifstream in(reportPath);
     if (!in.is_open()) {

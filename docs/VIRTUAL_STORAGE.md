@@ -8,16 +8,16 @@ When `virtualizeAppData` is enabled (default), launch and install pass a custom 
 
 | Variable | Redirected to |
 |---|---|
-| `APPDATA` | `%ProgramData%\GameCrate\<id>\virtual\AppData\Roaming` |
-| `LOCALAPPDATA` | `%ProgramData%\GameCrate\<id>\virtual\AppData\Local` |
-| `TEMP` / `TMP` | `%ProgramData%\GameCrate\<id>\virtual\Temp` |
+| `APPDATA` | `%LOCALAPPDATA%\GameCrate\<id>\virtual\AppData\Roaming` |
+| `LOCALAPPDATA` | `%LOCALAPPDATA%\GameCrate\<id>\virtual\AppData\Local` |
+| `TEMP` / `TMP` | `%LOCALAPPDATA%\GameCrate\<id>\virtual\Temp` |
 
 Games and installers that honor these variables store settings and caches inside the sandbox instead of your real user profile.
 
 ### Layout
 
 ```
-%ProgramData%\GameCrate\<profile-id>\
+%LOCALAPPDATA%\GameCrate\<profile-id>\
 ├── saves\                 # explicit save dir
 ├── virtual\
 │   ├── AppData\

@@ -7,6 +7,12 @@ Quick start (GUI)
 2. Double-click GameCrate.Gui.exe
 3. Use "Install game..." for sandboxed installers, or "Play" for existing profiles.
 
+Install folder tips
+-------------------
+- Use a folder you own, e.g. D:\Games\Sandbox\MyGame or C:\Games\MyGame
+- Avoid C:\Program Files — ACL grants and installers often fail with "Access is denied"
+- GameCrate data (profiles, saves, reports) lives under %LOCALAPPDATA%\GameCrate\
+
 Quick start (CLI)
 -----------------
   gamecrate.exe list-profiles

@@ -1,4 +1,5 @@
 #include "gamecrate/FootprintScanner.hpp"
+#include "gamecrate/DataPaths.hpp"
 #include "gamecrate/VirtualStorage.hpp"
 
 #include <ShlObj.h>
@@ -216,10 +217,7 @@ std::vector<std::wstring> FootprintScanner::AllowedInstallRoots(
     const std::wstring& saveDir) {
     std::vector<std::wstring> roots = {installDir, saveDir};
 
-    const std::wstring programData = KnownFolderPath(CSIDL_COMMON_APPDATA);
-    if (!programData.empty()) {
-        roots.push_back(programData + L"\\GameCrate\\" + profileId);
-    }
+    roots.push_back(DataPaths::ProfileDataRoot(profileId));
 
     for (const auto& virtualRoot : VirtualStorage::WritableRoots(profileId)) {
         roots.push_back(virtualRoot);

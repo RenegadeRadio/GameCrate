@@ -2,10 +2,10 @@
 
 #include "gamecrate/AclManager.hpp"
 #include "gamecrate/AppContainerLauncher.hpp"
+#include "gamecrate/DataPaths.hpp"
 #include "gamecrate/RegistryScanner.hpp"
 #include "gamecrate/VirtualStorage.hpp"
-
-#include <ShlObj.h>
+#include "gamecrate/Win32Error.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -16,22 +16,30 @@ namespace gamecrate {
 
 namespace {
 
-std::wstring ProfileDataRoot(const std::wstring& profileId) {
-    wchar_t programData[MAX_PATH] = {};
-    if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return std::wstring(programData) + L"\\GameCrate\\" + profileId;
-    }
-    return L"C:\\ProgramData\\GameCrate\\" + profileId;
-}
-
-std::wstring DefaultSaveDir(const std::wstring& id) {
-    return ProfileDataRoot(id) + L"\\saves";
-}
-
-bool EnsureDirectory(const std::wstring& path) {
+bool EnsureDirectory(const std::wstring& path, std::wstring* errorOut = nullptr) {
     std::error_code ec;
     std::filesystem::create_directories(path, ec);
-    return std::filesystem::exists(path, ec);
+    if (std::filesystem::exists(path, ec)) {
+        return true;
+    }
+    if (errorOut) {
+        const DWORD error = ec.value() != 0 ? static_cast<DWORD>(ec.value()) : ERROR_PATH_NOT_FOUND;
+        *errorOut = FormatWin32Error(error);
+    }
+    return false;
+}
+
+std::wstring DirectoryFailureMessage(const std::wstring& label, const std::wstring& path, const std::wstring& error) {
+    std::wstring message = L"Cannot create " + label + L": " + path;
+    if (!error.empty()) {
+        message += L" (" + error + L")";
+    }
+    if (error.find(L"Access is denied") != std::wstring::npos ||
+        error.find(L"access is denied") != std::wstring::npos) {
+        message +=
+            L". Choose a folder you own (e.g. D:\\Games\\MyGame), not Program Files or another protected path.";
+    }
+    return message;
 }
 
 bool IsInstallerLikeName(const std::wstring& fileName) {
@@ -67,7 +75,7 @@ std::wstring WriteStringArrayJson(const std::vector<std::wstring>& values) {
     return ss.str();
 }
 
-bool RegisterProfile(const SandboxProfile& profile) {
+bool RegisterProfile(const SandboxProfile& profile, std::wstring& errorMessage) {
     std::vector<SID_AND_ATTRIBUTES> capabilityAttributes;
     std::vector<CapabilitySid> ownedCapabilities;
     for (const auto& capabilityName : ProfileStore::CapabilitiesFor(profile)) {
@@ -79,8 +87,16 @@ bool RegisterProfile(const SandboxProfile& profile) {
     }
 
     PSID packageSid = nullptr;
+    HRESULT hr = S_OK;
     if (!AppContainerLauncher::CreateOrResolveProfile(
-            profile.moniker, profile.name, capabilityAttributes, &packageSid)) {
+            profile.moniker, profile.name, capabilityAttributes, &packageSid, &hr)) {
+        errorMessage = L"Failed to register AppContainer profile";
+        if (FAILED(hr)) {
+            std::wstringstream ss;
+            ss << errorMessage << L" (HRESULT=0x" << std::hex << static_cast<unsigned long>(hr) << L")";
+            errorMessage = ss.str();
+        }
+        errorMessage += L".";
         return false;
     }
     if (packageSid) {
@@ -121,13 +137,23 @@ std::unique_ptr<wchar_t[]> InstallManager::BuildEnvironmentForProfile(const Sand
     return VirtualStorage::BuildEnvironmentBlock(VirtualStorage::EnvironmentOverrides(layout));
 }
 
-bool InstallManager::ApplyProfileAcls(const SandboxProfile& profile, AclMode mode) {
+bool InstallManager::ApplyProfileAcls(
+    const SandboxProfile& profile,
+    AclMode mode,
+    std::wstring* errorOut) {
+    if (errorOut) {
+        errorOut->clear();
+    }
+
     PSID packageSid = nullptr;
     HRESULT hr = DeriveAppContainerSidFromAppContainerName(profile.moniker.c_str(), &packageSid);
     if (FAILED(hr)) {
         std::vector<SID_AND_ATTRIBUTES> capabilities;
         if (!AppContainerLauncher::CreateOrResolveProfile(
                 profile.moniker, profile.name, capabilities, &packageSid)) {
+            if (errorOut) {
+                *errorOut = L"Failed to resolve AppContainer SID for ACL grants.";
+            }
             return false;
         }
     }
@@ -155,7 +181,18 @@ bool InstallManager::ApplyProfileAcls(const SandboxProfile& profile, AclMode mod
         addGrant(path, PathAccess::ReadExecute);
     }
 
-    const bool ok = AclManager::GrantAppContainerAccess(packageSid, grants);
+    std::wstring failedPath;
+    DWORD failedError = ERROR_SUCCESS;
+    const bool ok = AclManager::GrantAppContainerAccess(packageSid, grants, failedPath, failedError);
+    if (!ok && errorOut) {
+        *errorOut = L"ACL grant failed on " + failedPath + L": " + FormatWin32Error(failedError);
+        if (failedError == ERROR_ACCESS_DENIED) {
+            *errorOut +=
+                L". Use an install folder you own (e.g. D:\\Games\\MyGame), not Program Files. "
+                L"Run GameCrate as a standard user — elevated installs are not required.";
+        }
+    }
+
     if (packageSid) {
         FreeSid(packageSid);
     }
@@ -261,7 +298,7 @@ std::wstring InstallManager::DetectExecutable(const std::wstring& installDir) {
 }
 
 bool InstallManager::WriteReport(const InstallResult& result, const InstallOptions& options) {
-    const std::wstring reportDir = ProfileDataRoot(options.id);
+    const std::wstring reportDir = DataPaths::ProfileDataRoot(options.id);
     if (!EnsureDirectory(reportDir)) {
         return false;
     }
@@ -315,10 +352,16 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
 
     InstallOptions normalized = options;
     if (normalized.saveDir.empty()) {
-        normalized.saveDir = DefaultSaveDir(normalized.id);
+        normalized.saveDir = DataPaths::DefaultSaveDir(normalized.id);
     }
-    if (!EnsureDirectory(normalized.installDir) || !EnsureDirectory(normalized.saveDir)) {
-        result.message = L"Failed to create install or save directory.";
+
+    std::wstring directoryError;
+    if (!EnsureDirectory(normalized.installDir, &directoryError)) {
+        result.message = DirectoryFailureMessage(L"install directory", normalized.installDir, directoryError);
+        return result;
+    }
+    if (!EnsureDirectory(normalized.saveDir, &directoryError)) {
+        result.message = DirectoryFailureMessage(L"save directory", normalized.saveDir, directoryError);
         return result;
     }
 
@@ -337,13 +380,13 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     profile.writablePaths = {profile.installDir, profile.saveDir};
     ApplyVirtualStorage(profile);
 
-    if (!RegisterProfile(profile)) {
-        result.message = L"Failed to register AppContainer profile.";
+    if (!RegisterProfile(profile, result.message)) {
         return result;
     }
 
-    if (!ApplyProfileAcls(profile, AclMode::Install)) {
-        result.message = L"Failed to apply install-phase ACL grants.";
+    std::wstring aclError;
+    if (!ApplyProfileAcls(profile, AclMode::Install, &aclError)) {
+        result.message = aclError.empty() ? L"Failed to apply install-phase ACL grants." : aclError;
         return result;
     }
 
@@ -452,7 +495,7 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         ApplyProfileAcls(profile, AclMode::Run);
     }
 
-    result.reportPath = ProfileDataRoot(profile.id) + L"\\install-report.json";
+    result.reportPath = DataPaths::ProfileDataRoot(profile.id) + L"\\install-report.json";
     WriteReport(result, normalized);
 
     if (result.success) {

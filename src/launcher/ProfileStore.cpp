@@ -1,7 +1,7 @@
+#include "gamecrate/DataPaths.hpp"
 #include "gamecrate/InstallManager.hpp"
 #include "gamecrate/ProfileStore.hpp"
 
-#include <ShlObj.h>
 #include <UserEnv.h>
 
 #include <filesystem>
@@ -122,11 +122,7 @@ bool EnsureDirectory(const std::wstring& path) {
 }  // namespace
 
 std::wstring ProfileStore::ProfilesRoot() {
-    wchar_t programData[MAX_PATH] = {};
-    if (FAILED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-        return L"C:\\ProgramData\\GameCrate\\profiles";
-    }
-    return std::wstring(programData) + L"\\GameCrate\\profiles";
+    return DataPaths::ProfilesRoot();
 }
 
 std::wstring ProfileStore::ProfilePath(const std::wstring& id) {
@@ -303,11 +299,7 @@ bool ProfileStore::Destroy(const std::wstring& id, bool wipeData) {
     std::filesystem::remove(profileFile, ec);
 
     if (wipeData) {
-        wchar_t programData[MAX_PATH] = {};
-        if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, SHGFP_TYPE_CURRENT, programData))) {
-            const std::wstring dataRoot = std::wstring(programData) + L"\\GameCrate\\" + id;
-            std::filesystem::remove_all(dataRoot, ec);
-        }
+        std::filesystem::remove_all(DataPaths::ProfileDataRoot(id), ec);
     }
 
     return !Exists(id);

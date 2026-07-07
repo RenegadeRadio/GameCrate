@@ -1,5 +1,7 @@
 #include "gamecrate/AppContainerLauncher.hpp"
 
+#include "gamecrate/Win32Error.hpp"
+
 #include <sstream>
 
 namespace gamecrate {
@@ -61,7 +63,12 @@ bool AppContainerLauncher::CreateOrResolveProfile(
     const std::wstring& moniker,
     const std::wstring& displayName,
     const std::vector<SID_AND_ATTRIBUTES>& capabilities,
-    PSID* outSid) {
+    PSID* outSid,
+    HRESULT* outHr) {
+    if (outHr) {
+        *outHr = S_OK;
+    }
+
     PSID packageSid = nullptr;
     const PCWSTR display = displayName.empty() ? moniker.c_str() : displayName.c_str();
 
@@ -77,9 +84,15 @@ bool AppContainerLauncher::CreateOrResolveProfile(
         if (hr == HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS)) {
             hr = DeriveAppContainerSidFromAppContainerName(moniker.c_str(), &packageSid);
             if (FAILED(hr)) {
+                if (outHr) {
+                    *outHr = hr;
+                }
                 return false;
             }
         } else {
+            if (outHr) {
+                *outHr = hr;
+            }
             return false;
         }
     }
@@ -227,13 +240,15 @@ LaunchResult AppContainerLauncher::Launch(const LaunchOptions& options) {
     }
 
     PSID packageSid = nullptr;
+    HRESULT profileHr = S_OK;
     if (!CreateOrResolveProfile(
             options.moniker,
             options.displayName.empty() ? options.moniker : options.displayName,
             capabilityAttributes,
-            &packageSid)) {
-        launchResult.message = L"Failed to create or resolve AppContainer profile.";
-        launchResult.errorCode = ERROR_ACCESS_DENIED;
+            &packageSid,
+            &profileHr)) {
+        launchResult.message = HresultMessage(L"Failed to create or resolve AppContainer profile", profileHr);
+        launchResult.errorCode = FAILED(profileHr) ? static_cast<DWORD>(profileHr) : ERROR_ACCESS_DENIED;
         return launchResult;
     }
 
@@ -256,7 +271,13 @@ LaunchResult AppContainerLauncher::Launch(const LaunchOptions& options) {
     launchResult.success = launchError == ERROR_SUCCESS || launchError == STILL_ACTIVE;
 
     if (!launchResult.success) {
-        launchResult.message = L"CreateProcess failed with Win32 error " + std::to_wstring(launchError);
+        launchResult.message =
+            L"CreateProcess failed: " + FormatWin32Error(launchError) + L" (" + std::to_wstring(launchError) + L")";
+        if (launchError == ERROR_ACCESS_DENIED) {
+            launchResult.message +=
+                L". The installer may require administrator rights or cannot run inside an LPAC sandbox. "
+                L"Try a user-writable install folder and a portable installer when possible.";
+        }
     }
 
     return launchResult;

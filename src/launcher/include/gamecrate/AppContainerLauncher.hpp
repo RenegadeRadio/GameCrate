@@ -76,7 +76,8 @@ public:
         const std::wstring& moniker,
         const std::wstring& displayName,
         const std::vector<SID_AND_ATTRIBUTES>& capabilities,
-        PSID* outSid);
+        PSID* outSid,
+        HRESULT* outHr = nullptr);
 
 private:
     static DWORD LaunchProcess(
