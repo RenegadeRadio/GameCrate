@@ -12,7 +12,24 @@ permissions:
   contents: read
 
 jobs:
+  validate-profiles:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate example profiles
+        run: |
+          pip install jsonschema
+          python tools/validate-profiles.py
+
   build-windows:
+    needs: validate-profiles
     runs-on: windows-latest
 
     steps:
@@ -62,6 +79,16 @@ jobs:
           }
           Get-Item $exe | Format-List FullName, Length, LastWriteTime
           & $exe list-profiles
+
+          $smokeId = "ci-smoke-$PID"
+          $smokeDir = Join-Path $env:TEMP "gamecrate-smoke-$PID"
+          New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null
+          & $exe create-profile --id $smokeId --name "CI Smoke" --install-dir $smokeDir --executable C:\Windows\System32\cmd.exe --no-gpu
+          if ($LASTEXITCODE -ne 0) { throw "create-profile smoke test failed" }
+          & $exe set-executable --profile $smokeId --executable C:\Windows\System32\cmd.exe
+          if ($LASTEXITCODE -ne 0) { throw "set-executable smoke test failed" }
+          & $exe destroy-profile --profile $smokeId --wipe-data
+          if ($LASTEXITCODE -ne 0) { throw "destroy-profile smoke test failed" }
 
           $gui = "release/GameCrate/GameCrate.Gui.exe"
           if (-not (Test-Path $gui)) {
