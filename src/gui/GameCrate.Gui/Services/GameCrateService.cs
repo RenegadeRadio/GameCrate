@@ -91,6 +91,7 @@ public sealed class GameCrateService
         bool virtualizeAppData = true,
         bool allowNetwork = false,
         bool strictOutsideWrites = false,
+        string? executable = null,
         CancellationToken cancellationToken = default)
     {
         List<string> args =
@@ -101,6 +102,12 @@ public sealed class GameCrateService
             "--install-dir", installDir,
             "--installer", installer,
         ];
+
+        if (!string.IsNullOrWhiteSpace(executable))
+        {
+            args.Add("--executable");
+            args.Add(executable);
+        }
 
         if (!virtualizeAppData)
         {
@@ -119,6 +126,12 @@ public sealed class GameCrateService
 
         return RunAsync(cancellationToken, args.ToArray());
     }
+
+    public Task<GameCrateResult> SetExecutableAsync(
+        string profileId,
+        string executable,
+        CancellationToken cancellationToken = default) =>
+        RunAsync(cancellationToken, "set-executable", "--profile", profileId, "--executable", executable);
 
     public Task<GameCrateResult> ShowInstallReportAsync(string profileId, CancellationToken cancellationToken = default) =>
         RunAsync(cancellationToken, "show-install-report", "--profile", profileId);

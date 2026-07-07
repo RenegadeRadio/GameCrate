@@ -1,0 +1,99 @@
+name: Compatibility report
+description: Report whether a standalone game installs or plays in GameCrate
+title: "[compat] "
+labels: ["compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GameCrate targets **standalone installers** — not Steam/Epic/GOG. See [SCOPE.md](https://github.com/RenegadeRadio/GameCrate/blob/main/docs/SCOPE.md).
+
+  - type: input
+    id: version
+    attributes:
+      label: GameCrate version
+      description: e.g. v0.4.8 (from About in GUI or release tag)
+      placeholder: v0.4.8
+    validations:
+      required: true
+
+  - type: input
+    id: game
+    attributes:
+      label: Game name
+      placeholder: My Indie Game
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source
+      options:
+        - itch.io / direct download
+        - Inno / NSIS installer
+        - Repack / offline installer
+        - Portable zip / folder
+        - Other standalone
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_result
+    attributes:
+      label: Install result
+      options:
+        - Not tested
+        - Success
+        - Failed
+        - Success after picking executable manually
+    validations:
+      required: true
+
+  - type: dropdown
+    id: play_result
+    attributes:
+      label: Play result
+      options:
+        - Not tested
+        - Success
+        - Failed (black screen / instant exit)
+        - Failed (GPU / VM)
+        - Failed (anti-cheat / DRM)
+        - Failed (other)
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Physical PC vs VM, GPU present or not
+      placeholder: Windows 11 VM, no GPU passthrough
+    validations:
+      required: true
+
+  - type: textarea
+    id: profile
+    attributes:
+      label: Profile JSON (if any)
+      description: From `%LOCALAPPDATA%\GameCrate\profiles\<id>.json` or GUI list
+      render: json
+    validations:
+      required: false
+
+  - type: textarea
+    id: symptom
+    attributes:
+      label: Symptom / error message
+      description: What happened? Include GUI or CLI output if possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: procmon
+    attributes:
+      label: Procmon snippet (optional)
+      description: First ACCESS DENIED on file or registry for the game PID
+    validations:
+      required: false

@@ -1,4 +1,4 @@
-GameCrate v0.4.7 — Windows x64
+GameCrate v0.4.8 — Windows x64
 ================================
 
 Quick start (GUI)

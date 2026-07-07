@@ -16,7 +16,7 @@
 - Perfect DRM compatibility
 - Steam, Epic, GOG, and other **platform launchers** — they manage their own games, updates, and DRM; use those clients instead ([SCOPE.md](docs/SCOPE.md))
 
-See [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) for tiered compatibility guidance.
+See [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) for tiered compatibility guidance. Changelog: [CHANGELOG.md](CHANGELOG.md).
 
 ## Architecture
 
@@ -53,7 +53,7 @@ There is no kernel driver and no always-on service.
 
 **Easiest way to run GameCrate in a VM** — no build tools required.
 
-1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.7`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
+1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.8`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
 2. Download **`GameCrate-windows-x64.zip`**
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)
@@ -227,7 +227,7 @@ tools/          PowerShell setup helpers
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
 - [x] v0.2 — Sandboxed installer + install footprint scanner
 - [x] v0.3 — AppData redirection, registry install scan, destroy-profile
-- [x] v0.4 — WPF tray GUI, monitored install, GitHub Releases (v0.4.7)
+- [x] v0.4 — WPF tray GUI, monitored install, GitHub Releases (v0.4.8)
 - [ ] Future — shell integration, optional kernel minifilter (see [ARCHITECTURE.md](docs/ARCHITECTURE.md))
 
 ## License

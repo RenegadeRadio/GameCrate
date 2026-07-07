@@ -126,6 +126,18 @@ For malware isolation, `outsideWrites` and `outsideRegistryChanges` should be em
 
 ---
 
+### `set-executable`
+
+Set or fix the game executable after install when auto-detection fails.
+
+```powershell
+gamecrate set-executable --profile my-game --executable D:\Games\my-game\Game.exe
+```
+
+The GUI install wizard offers a file picker automatically when install reports *no game executable was detected*.
+
+---
+
 ### `destroy-profile`
 
 ```powershell

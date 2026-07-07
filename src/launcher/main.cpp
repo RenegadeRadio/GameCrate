@@ -20,6 +20,7 @@ void PrintUsage() {
         << L"  gamecrate launch --profile <id> [--no-wait]\n"
         << L"  gamecrate grant --profile <id>\n"
         << L"  gamecrate show-install-report --profile <id>\n"
+        << L"  gamecrate set-executable --profile <id> --executable <path>\n"
         << L"  gamecrate destroy-profile --profile <id> [--wipe-data]\n"
         << L"  gamecrate list-profiles [--json]\n"
         << L"  gamecrate show-profile --profile <id>\n\n"
@@ -410,6 +411,50 @@ int ShowProfile(int argc, wchar_t** argv) {
     return 0;
 }
 
+int SetExecutable(int argc, wchar_t** argv) {
+    std::wstring profileId;
+    std::wstring executable;
+    for (int i = 2; i < argc; ++i) {
+        const std::wstring arg = argv[i];
+        if (arg == L"--profile") {
+            profileId = RequireArg(argc, argv, i);
+        } else if (arg == L"--executable") {
+            executable = RequireArg(argc, argv, i);
+        }
+    }
+
+    if (profileId.empty() || executable.empty()) {
+        gamecrate::WriteStderr(L"set-executable requires --profile <id> and --executable <path>.\n");
+        return 1;
+    }
+
+    if (GetFileAttributesW(executable.c_str()) == INVALID_FILE_ATTRIBUTES) {
+        gamecrate::WriteStderr(L"Executable not found: " + executable + L"\n");
+        return 1;
+    }
+
+    gamecrate::SandboxProfile profile;
+    if (!gamecrate::ProfileStore::Load(profileId, profile)) {
+        gamecrate::WriteStderr(L"Profile not found: " + profileId + L"\n");
+        return 1;
+    }
+
+    profile.executable = executable;
+    if (!gamecrate::ProfileStore::Save(profile)) {
+        gamecrate::WriteStderr(L"Failed to save profile.\n");
+        return 1;
+    }
+
+    if (!gamecrate::InstallManager::ApplyProfileAcls(profile, gamecrate::AclMode::Run)) {
+        gamecrate::WriteStderr(L"Profile saved but ACL grants failed. Re-run 'gamecrate grant --profile " +
+                               profileId + L"'.\n");
+        return 1;
+    }
+
+    gamecrate::WriteStdout(L"Set executable for profile '" + profileId + L"' to " + executable + L"\n");
+    return 0;
+}
+
 int DestroyProfile(int argc, wchar_t** argv) {
     std::wstring profileId;
     bool wipeData = false;
@@ -466,6 +511,9 @@ int wmain(int argc, wchar_t** argv) {
         }
         if (command == L"show-install-report") {
             return ShowInstallReport(argc, argv);
+        }
+        if (command == L"set-executable") {
+            return SetExecutable(argc, argv);
         }
         if (command == L"destroy-profile") {
             return DestroyProfile(argc, argv);

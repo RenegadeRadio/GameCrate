@@ -134,6 +134,11 @@ public partial class InstallWindow : Window
                 return;
             }
 
+            if (await TryRecoverMissingExecutableAsync(id, installDir, result))
+            {
+                return;
+            }
+
             InstallStatus.Text = "Install failed.";
             MessageBox.Show(
                 result.FormatOutput("Install failed. Check the install report or run gamecrate install from PowerShell."),
@@ -157,6 +162,65 @@ public partial class InstallWindow : Window
             CancelButton.IsEnabled = true;
             InstallProgress.Visibility = Visibility.Collapsed;
         }
+    }
+
+    private async Task<bool> TryRecoverMissingExecutableAsync(
+        string profileId,
+        string installDir,
+        GameCrateResult installResult)
+    {
+        string combined = (installResult.StandardOutput + installResult.StandardError).ToLowerInvariant();
+        if (!combined.Contains("no game executable was detected"))
+        {
+            return false;
+        }
+
+        var pick = MessageBox.Show(
+            "The installer finished, but GameCrate could not find the game .exe automatically.\n\n" +
+            "Pick the game's main executable now?",
+            "Select game executable",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (pick != MessageBoxResult.Yes)
+        {
+            return false;
+        }
+
+        string initialDir = Directory.Exists(installDir) ? installDir : string.Empty;
+        var dialog = new OpenFileDialog
+        {
+            Filter = "Game executables (*.exe)|*.exe|All files (*.*)|*.*",
+            Title = "Select game executable",
+            InitialDirectory = string.IsNullOrEmpty(initialDir) ? null : initialDir,
+        };
+
+        if (dialog.ShowDialog() != true)
+        {
+            return false;
+        }
+
+        InstallStatus.Text = "Saving executable path...";
+        var setResult = await _service.SetExecutableAsync(profileId, dialog.FileName);
+        if (!setResult.Success)
+        {
+            MessageBox.Show(
+                setResult.FormatOutput("Failed to set executable."),
+                "Install incomplete",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            return false;
+        }
+
+        InstallStatus.Text = "Install finished with manual executable.";
+        MessageBox.Show(
+            $"Executable set to:\n{dialog.FileName}\n\nYou can Play from the main window.",
+            "Install complete",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+        DialogResult = true;
+        Close();
+        return true;
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)

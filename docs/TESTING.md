@@ -5,7 +5,7 @@ Use this guide when handing GameCrate to testers. It covers download, install, p
 ## Download
 
 1. Open [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)
-2. Download **`GameCrate-windows-x64.zip`** from the latest release (currently **v0.4.7+**)
+2. Download **`GameCrate-windows-x64.zip`** from the latest release (currently **v0.4.8+**)
 3. Extract the `GameCrate` folder anywhere (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** as a **normal user** — do not “Run as administrator” unless Windows/UAC asks during the game installer
 
@@ -85,7 +85,7 @@ Please include:
 
 | Item | Example |
 |------|---------|
-| GameCrate version | v0.4.7 |
+| GameCrate version | v0.4.8 |
 | Windows version | Windows 11 23H2 |
 | Install folder used | `D:\Games\my-game` |
 | Installer type | Inno / NSIS / portable / other (not Steam/Epic store clients) |
@@ -101,7 +101,7 @@ Please include:
 | JSON error on startup | Old build | Use **v0.4.3+** |
 | Access denied on install folder | `C:\Install`, Program Files | Use `D:\Games\...` or `%LOCALAPPDATA%\Games\...` |
 | Inno / `C:\Windows\is-*.tmp` error | Old build or LPAC install | Use **v0.4.5+**; approve UAC |
-| Install failed: outside writes | Old build | Use **v0.4.7+**; Start Menu shortcuts are benign |
+| Install failed: outside writes | Old build | Use **v0.4.8+**; Start Menu shortcuts are benign |
 | Play fails, install OK | No GPU in VM | Expected for many games; test on hardware with a GPU |
 | UAC prompt during install | Normal for many installers | Click Yes |
 

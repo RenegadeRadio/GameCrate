@@ -1,0 +1,79 @@
+name: Install failure
+description: Installer ran but GameCrate reported install failed
+title: "[install] "
+labels: ["install"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Attach your **install report** when possible: `%LOCALAPPDATA%\GameCrate\<profile-id>\install-report.json`
+        or use **Install report** in the GUI.
+
+  - type: input
+    id: version
+    attributes:
+      label: GameCrate version
+      placeholder: v0.4.8
+    validations:
+      required: true
+
+  - type: input
+    id: profile_id
+    attributes:
+      label: Profile ID
+      placeholder: my-game
+    validations:
+      required: true
+
+  - type: input
+    id: installer
+    attributes:
+      label: Installer path / type
+      description: e.g. Inno setup, TiNY repack, NSIS
+      placeholder: D:\Downloads\game-setup.exe (Inno)
+    validations:
+      required: true
+
+  - type: input
+    id: install_dir
+    attributes:
+      label: Install directory chosen
+      placeholder: D:\Games\my-game
+    validations:
+      required: true
+
+  - type: dropdown
+    id: strict_mode
+    attributes:
+      label: Strict outside writes enabled?
+      options:
+        - "No (default)"
+        - "Yes"
+        - Unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message
+      description: GUI dialog or `gamecrate install` output
+    validations:
+      required: true
+
+  - type: textarea
+    id: report
+    attributes:
+      label: install-report.json (paste contents)
+      render: json
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: uac
+    attributes:
+      label: UAC
+      options:
+        - label: UAC prompt appeared and I approved it
+        - label: UAC prompt appeared and I denied it
+        - label: No UAC prompt

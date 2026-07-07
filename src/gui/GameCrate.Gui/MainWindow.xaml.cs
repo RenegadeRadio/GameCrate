@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,7 +21,23 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         ProfileList.ItemsSource = _profiles;
+        VersionText.Text = $"v{GetAppVersion()}";
         Loaded += async (_, _) => await RefreshProfilesAsync();
+    }
+
+    private static string GetAppVersion() =>
+        Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.0.0";
+
+    private void AboutButton_Click(object sender, RoutedEventArgs e)
+    {
+        MessageBox.Show(
+            $"GameCrate v{GetAppVersion()}\n\n" +
+            "Windows LPAC sandbox for standalone games.\n" +
+            "Not for Steam/Epic/GOG — see docs\\SCOPE.md\n\n" +
+            "https://github.com/RenegadeRadio/GameCrate",
+            "About GameCrate",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     public void OpenInstallDialog()
@@ -138,8 +156,35 @@ public partial class MainWindow : Window
                 return;
             }
 
+            string json = result.StandardOutput.Trim();
+            InstallReportSummary? summary = null;
+            try
+            {
+                summary = JsonSerializer.Deserialize<InstallReportSummary>(json);
+            }
+            catch (JsonException)
+            {
+                // Fall back to opening raw JSON below.
+            }
+
+            if (summary != null)
+            {
+                var viewFull = MessageBox.Show(
+                    summary.ToSummaryText() + Environment.NewLine + Environment.NewLine +
+                    "Open full install-report.json in your default editor?",
+                    $"Install report — {profile.Name}",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (viewFull != MessageBoxResult.Yes)
+                {
+                    StatusText.Text = $"Install report summary shown for {profile.Name}.";
+                    return;
+                }
+            }
+
             var tempPath = Path.Combine(Path.GetTempPath(), $"gamecrate-report-{profile.Id}.json");
-            await File.WriteAllTextAsync(tempPath, result.StandardOutput);
+            await File.WriteAllTextAsync(tempPath, json);
             Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
             StatusText.Text = $"Opened install report for {profile.Name}.";
         }
