@@ -51,6 +51,9 @@
             <CheckBox x:Name="VirtualAppDataCheck" Content="Virtualize AppData (recommended)"
                       IsChecked="True" Foreground="{StaticResource TextBrush}" Margin="0,0,0,8"/>
             <CheckBox x:Name="NetworkCheck" Content="Allow network during install"
+                      Foreground="{StaticResource TextBrush}" Margin="0,0,0,8"/>
+            <CheckBox x:Name="StrictOutsideWritesCheck"
+                      Content="Strict: fail if installer writes outside install folder"
                       Foreground="{StaticResource TextBrush}"/>
         </StackPanel>
 

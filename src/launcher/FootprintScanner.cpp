@@ -233,12 +233,31 @@ std::vector<std::wstring> FootprintScanner::AllowedInstallRoots(
     return normalized;
 }
 
+bool FootprintScanner::IsBenignOutsidePath(const std::wstring& path) {
+    const std::wstring lower = PathUtils::ToLower(path);
+
+    if (lower.find(L"\\microsoft\\windows\\caches\\") != std::wstring::npos) {
+        return true;
+    }
+
+    if (lower.size() >= 4 && lower.rfind(L".lnk") == lower.size() - 4) {
+        if (lower.find(L"\\start menu\\programs\\") != std::wstring::npos ||
+            lower.find(L"\\microsoft\\windows\\start menu\\programs\\") != std::wstring::npos) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool FootprintScanner::IsSuspiciousOutsidePath(const std::wstring& path) {
+    if (IsBenignOutsidePath(path)) {
+        return false;
+    }
+
     const std::wstring lower = PathUtils::ToLower(path);
     static const wchar_t* markers[] = {
         L"\\startup\\",
-        L"\\start menu\\",
-        L"\\microsoft\\windows\\start menu\\",
         L"\\tasks\\",
         L"\\system32\\",
         L"\\syswow64\\",

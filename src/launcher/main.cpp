@@ -26,7 +26,8 @@ void PrintUsage() {
         << L"Options for install:\n"
         << L"  --installer-args <args>  Arguments passed to the installer\n"
         << L"  --executable <path>      Skip auto-detection after install\n"
-        << L"  --allow-outside-writes   Warn on outside writes but do not fail\n"
+        << L"  --allow-outside-writes   Do not fail on outside writes (default)\n"
+        << L"  --strict-outside-writes  Fail if installer writes outside install/save dirs\n"
         << L"  --keep-install-writable  Do not tighten install dir ACLs after install\n"
         << L"  --network                Allow network during install (not recommended)\n"
         << L"  --no-registry / --lpac-com / --no-gpu / --no-virtual-app-data\n\n"
@@ -168,6 +169,8 @@ int InstallProfile(int argc, wchar_t** argv) {
             options.gpu = false;
         } else if (arg == L"--allow-outside-writes") {
             options.failOnOutsideWrites = false;
+        } else if (arg == L"--strict-outside-writes") {
+            options.failOnOutsideWrites = true;
         } else if (arg == L"--keep-install-writable") {
             options.tightenAclsAfter = false;
         } else if (arg == L"--no-virtual-app-data") {

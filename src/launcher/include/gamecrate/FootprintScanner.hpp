@@ -43,6 +43,7 @@ public:
         const std::wstring& installDir,
         const std::wstring& saveDir);
     static bool IsSuspiciousOutsidePath(const std::wstring& path);
+    static bool IsBenignOutsidePath(const std::wstring& path);
 };
 
 }  // namespace gamecrate
