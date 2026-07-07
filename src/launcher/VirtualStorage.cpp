@@ -1,6 +1,8 @@
 #include "gamecrate/DataPaths.hpp"
 #include "gamecrate/VirtualStorage.hpp"
 
+#include <UserEnv.h>
+
 #include <filesystem>
 #include <unordered_map>
 
