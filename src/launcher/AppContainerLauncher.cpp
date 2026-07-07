@@ -275,8 +275,9 @@ LaunchResult AppContainerLauncher::Launch(const LaunchOptions& options) {
             L"CreateProcess failed: " + FormatWin32Error(launchError) + L" (" + std::to_wstring(launchError) + L")";
         if (launchError == ERROR_ACCESS_DENIED) {
             launchResult.message +=
-                L". The installer may require administrator rights or cannot run inside an LPAC sandbox. "
-                L"Try a user-writable install folder and a portable installer when possible.";
+                L". The sandbox could not run the installer — GameCrate grants read access to the "
+                L"installer file during setup, but the installer may require administrator rights or "
+                L"cannot run inside LPAC. Try a user-writable install folder (not C:\\Install).";
         }
     }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gamecrate/AclManager.hpp"
 #include "gamecrate/FootprintScanner.hpp"
 #include "gamecrate/ProfileStore.hpp"
 
@@ -52,7 +53,8 @@ public:
     static bool ApplyProfileAcls(
         const SandboxProfile& profile,
         AclMode mode,
-        std::wstring* errorOut = nullptr);
+        std::wstring* errorOut = nullptr,
+        const std::vector<AclGrant>* extraGrants = nullptr);
     static bool RemoveProfileAcls(const SandboxProfile& profile);
     static InstallResult Run(const InstallOptions& options);
     static std::wstring DetectExecutable(const std::wstring& installDir);

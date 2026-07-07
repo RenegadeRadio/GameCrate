@@ -42,6 +42,67 @@ std::wstring DirectoryFailureMessage(const std::wstring& label, const std::wstri
     return message;
 }
 
+std::wstring ValidateInstallPath(const std::wstring& path) {
+    const std::wstring normalized = PathUtils::Normalize(path);
+    if (normalized.empty()) {
+        return L"Install directory path is invalid.";
+    }
+
+    if (normalized.find(L"\\program files") != std::wstring::npos ||
+        normalized.find(L"\\windows\\") != std::wstring::npos ||
+        (normalized.size() >= 8 && normalized.rfind(L"\\windows") == normalized.size() - 8)) {
+        return L"Install directory cannot be under Program Files or Windows.";
+    }
+
+    if (normalized.size() >= 3 && normalized[1] == L':' && normalized[2] == L'\\') {
+        const size_t firstSep = normalized.find(L'\\', 3);
+        if (firstSep == std::wstring::npos) {
+            return L"Do not install directly to a drive root. Use a subfolder like D:\\Games\\MyGame.";
+        }
+        if (normalized.find(L'\\', firstSep + 1) == std::wstring::npos) {
+            return L"Install folder \"" + path +
+                   L"\" is directly on the drive root (e.g. C:\\Install). Windows often blocks "
+                   L"sandbox ACL changes there. Use a folder you own, e.g. "
+                   L"C:\\Users\\<you>\\Games\\city-studio or D:\\Games\\city-studio.";
+        }
+    }
+
+    return L"";
+}
+
+std::vector<AclGrant> InstallerAccessGrants(const std::wstring& installerPath) {
+    std::vector<AclGrant> grants;
+    grants.push_back({installerPath, PathAccess::ReadExecute});
+
+    const std::wstring installerDir = std::filesystem::path(installerPath).parent_path().wstring();
+    if (!installerDir.empty() && PathUtils::Normalize(installerDir) != PathUtils::Normalize(installerPath)) {
+        grants.push_back({installerDir, PathAccess::ReadExecute});
+    }
+    return grants;
+}
+
+void RevokeGrants(PSID packageSid, const std::vector<AclGrant>& grants) {
+    if (!packageSid) {
+        return;
+    }
+    for (const AclGrant& grant : grants) {
+        AclManager::RemoveAppContainerAccess(packageSid, grant.path);
+    }
+}
+
+PSID ResolvePackageSid(const SandboxProfile& profile) {
+    PSID packageSid = nullptr;
+    HRESULT hr = DeriveAppContainerSidFromAppContainerName(profile.moniker.c_str(), &packageSid);
+    if (FAILED(hr)) {
+        std::vector<SID_AND_ATTRIBUTES> capabilities;
+        if (!AppContainerLauncher::CreateOrResolveProfile(
+                profile.moniker, profile.name, capabilities, &packageSid)) {
+            return nullptr;
+        }
+    }
+    return packageSid;
+}
+
 bool IsInstallerLikeName(const std::wstring& fileName) {
     const std::wstring lower = PathUtils::ToLower(fileName);
     if (lower == L"setup.exe" || lower == L"install.exe" || lower == L"launcher.exe") {
@@ -140,7 +201,8 @@ std::unique_ptr<wchar_t[]> InstallManager::BuildEnvironmentForProfile(const Sand
 bool InstallManager::ApplyProfileAcls(
     const SandboxProfile& profile,
     AclMode mode,
-    std::wstring* errorOut) {
+    std::wstring* errorOut,
+    const std::vector<AclGrant>* extraGrants) {
     if (errorOut) {
         errorOut->clear();
     }
@@ -179,6 +241,11 @@ bool InstallManager::ApplyProfileAcls(
     }
     for (const auto& path : profile.readablePaths) {
         addGrant(path, PathAccess::ReadExecute);
+    }
+    if (extraGrants) {
+        for (const auto& grant : *extraGrants) {
+            addGrant(grant.path, grant.access);
+        }
     }
 
     std::wstring failedPath;
@@ -355,6 +422,12 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         normalized.saveDir = DataPaths::DefaultSaveDir(normalized.id);
     }
 
+    const std::wstring installPathError = ValidateInstallPath(normalized.installDir);
+    if (!installPathError.empty()) {
+        result.message = installPathError;
+        return result;
+    }
+
     std::wstring directoryError;
     if (!EnsureDirectory(normalized.installDir, &directoryError)) {
         result.message = DirectoryFailureMessage(L"install directory", normalized.installDir, directoryError);
@@ -384,8 +457,10 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         return result;
     }
 
+    const std::vector<AclGrant> installerGrants = InstallerAccessGrants(normalized.installer);
+
     std::wstring aclError;
-    if (!ApplyProfileAcls(profile, AclMode::Install, &aclError)) {
+    if (!ApplyProfileAcls(profile, AclMode::Install, &aclError, &installerGrants)) {
         result.message = aclError.empty() ? L"Failed to apply install-phase ACL grants." : aclError;
         return result;
     }
@@ -412,6 +487,12 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
 
     const LaunchResult launchResult = AppContainerLauncher::Launch(launchOptions);
     result.installerExitCode = launchResult.exitCode;
+
+    PSID packageSid = ResolvePackageSid(profile);
+    if (packageSid) {
+        RevokeGrants(packageSid, installerGrants);
+        FreeSid(packageSid);
+    }
 
     if (!launchResult.success) {
         result.message = L"Installer failed: " + launchResult.message;
