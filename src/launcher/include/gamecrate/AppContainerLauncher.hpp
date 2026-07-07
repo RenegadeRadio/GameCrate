@@ -54,6 +54,7 @@ struct LaunchOptions {
     std::wstring displayName;
     std::vector<std::wstring> capabilities;
     bool lessPrivileged = true;
+    bool useAppContainer = true;
     bool waitForExit = true;
     bool retainProfile = true;
     std::wstring workingDirectory;
@@ -80,6 +81,11 @@ public:
         HRESULT* outHr = nullptr);
 
 private:
+    static DWORD LaunchMonitored(
+        const LaunchOptions& options,
+        DWORD& outProcessId,
+        DWORD& outExitCode);
+
     static DWORD LaunchProcess(
         PSID packageSid,
         const LaunchOptions& options,

@@ -68,6 +68,8 @@ Copy-Item build\gamecrate.exe build\package\gamecrate.exe
 
 **JSON error on startup (`0xE0` is an invalid start of a value)** — update to the latest release. The GUI and CLI must agree on UTF-8 output when `gamecrate.exe` is spawned as a child process.
 
+**Inno Setup / repack installers** — install runs monitored (outside LPAC) so UAC can appear. Approve it if prompted. If setup still fails writing to `C:\Windows`, run GameCrate as Administrator once for install, or extract the game manually and use `create-profile`.
+
 **"Access is denied" during install** — use an install folder you own (e.g. `D:\Games\MyGame` or `%LOCALAPPDATA%\Games\MyGame`), not `C:\Install` or `C:\Program Files`. The installer in Downloads is supported in v0.4.4+; older builds could not read it from inside the sandbox. Run GameCrate as a standard user; some installers cannot run inside LPAC.
 
 **Install hangs** — some installers need elevation or network. Check the install report after completion; re-run from the CLI with `--network` if the game requires online activation during setup.

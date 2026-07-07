@@ -70,39 +70,6 @@ std::wstring ValidateInstallPath(const std::wstring& path) {
     return L"";
 }
 
-std::vector<AclGrant> InstallerAccessGrants(const std::wstring& installerPath) {
-    std::vector<AclGrant> grants;
-    grants.push_back({installerPath, PathAccess::ReadExecute});
-
-    const std::wstring installerDir = std::filesystem::path(installerPath).parent_path().wstring();
-    if (!installerDir.empty() && PathUtils::Normalize(installerDir) != PathUtils::Normalize(installerPath)) {
-        grants.push_back({installerDir, PathAccess::ReadExecute});
-    }
-    return grants;
-}
-
-void RevokeGrants(PSID packageSid, const std::vector<AclGrant>& grants) {
-    if (!packageSid) {
-        return;
-    }
-    for (const AclGrant& grant : grants) {
-        AclManager::RemoveAppContainerAccess(packageSid, grant.path);
-    }
-}
-
-PSID ResolvePackageSid(const SandboxProfile& profile) {
-    PSID packageSid = nullptr;
-    HRESULT hr = DeriveAppContainerSidFromAppContainerName(profile.moniker.c_str(), &packageSid);
-    if (FAILED(hr)) {
-        std::vector<SID_AND_ATTRIBUTES> capabilities;
-        if (!AppContainerLauncher::CreateOrResolveProfile(
-                profile.moniker, profile.name, capabilities, &packageSid)) {
-            return nullptr;
-        }
-    }
-    return packageSid;
-}
-
 bool IsInstallerLikeName(const std::wstring& fileName) {
     const std::wstring lower = PathUtils::ToLower(fileName);
     if (lower == L"setup.exe" || lower == L"install.exe" || lower == L"launcher.exe") {
@@ -134,6 +101,15 @@ std::wstring WriteStringArrayJson(const std::vector<std::wstring>& values) {
     }
     ss << L"]";
     return ss.str();
+}
+
+std::wstring BuildInstallerArguments(const InstallOptions& options) {
+    if (!options.installerArgs.empty()) {
+        return options.installerArgs;
+    }
+
+    // Inno Setup and many Windows installers accept /DIR= to steer the target path.
+    return L"/DIR=\"" + options.installDir + L"\"";
 }
 
 bool RegisterProfile(const SandboxProfile& profile, std::wstring& errorMessage) {
@@ -457,10 +433,8 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         return result;
     }
 
-    const std::vector<AclGrant> installerGrants = InstallerAccessGrants(normalized.installer);
-
     std::wstring aclError;
-    if (!ApplyProfileAcls(profile, AclMode::Install, &aclError, &installerGrants)) {
+    if (!ApplyProfileAcls(profile, AclMode::Install, &aclError)) {
         result.message = aclError.empty() ? L"Failed to apply install-phase ACL grants." : aclError;
         return result;
     }
@@ -474,28 +448,24 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     const RegistrySnapshot beforeRegistry = RegistryScanner::CaptureWatchKeys();
 
     LaunchOptions launchOptions;
-    launchOptions.moniker = profile.moniker;
-    launchOptions.displayName = profile.name;
     launchOptions.executable = normalized.installer;
-    launchOptions.arguments = normalized.installerArgs;
-    launchOptions.capabilities = ProfileStore::CapabilitiesFor(profile);
-    launchOptions.lessPrivileged = true;
+    launchOptions.arguments = BuildInstallerArguments(normalized);
+    launchOptions.useAppContainer = false;
     launchOptions.waitForExit = true;
-    launchOptions.retainProfile = true;
     launchOptions.workingDirectory = normalized.installDir;
     launchOptions.environmentBlock = BuildEnvironmentForProfile(profile);
 
     const LaunchResult launchResult = AppContainerLauncher::Launch(launchOptions);
     result.installerExitCode = launchResult.exitCode;
 
-    PSID packageSid = ResolvePackageSid(profile);
-    if (packageSid) {
-        RevokeGrants(packageSid, installerGrants);
-        FreeSid(packageSid);
-    }
-
     if (!launchResult.success) {
         result.message = L"Installer failed: " + launchResult.message;
+        if (launchResult.message.find(L"Access is denied") != std::wstring::npos ||
+            launchResult.message.find(L"access is denied") != std::wstring::npos) {
+            result.message +=
+                L" Many installers (Inno Setup, repacks) need Administrator — approve the UAC prompt if "
+                L"one appears, or right-click GameCrate.Gui.exe → Run as administrator.";
+        }
         return result;
     }
 
