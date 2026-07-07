@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+
+PackageIdentifier: RenegadeRadio.GameCrate
+PackageVersion: 0.4.8
+PackageLocale: en-US
+Publisher: RenegadeRadio
+PublisherUrl: https://github.com/RenegadeRadio
+PublisherSupportUrl: https://github.com/RenegadeRadio/GameCrate/issues
+PackageName: GameCrate
+PackageUrl: https://github.com/RenegadeRadio/GameCrate
+License: MIT
+LicenseUrl: https://github.com/RenegadeRadio/GameCrate/blob/main/LICENSE
+ShortDescription: Windows LPAC sandbox for standalone games
+Description: |-
+  GameCrate runs standalone games inside a Less-Privileged AppContainer (LPAC) with explicit filesystem grants.
+  Installers run monitored; play is sandboxed. For standalone installers and portable games — not Steam/Epic/GOG.
+Moniker: gamecrate
+Tags:
+  - sandbox
+  - games
+  - security
+  - lpac
+  - windows
+  - portable
+ReleaseNotesUrl: https://github.com/RenegadeRadio/GameCrate/releases/tag/v0.4.8
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0

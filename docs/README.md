@@ -21,6 +21,7 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 | [CLI.md](CLI.md) | Full command reference, flags, JSON output, install reports |
 | [HOW_IT_RUNS.md](HOW_IT_RUNS.md) | What runs when you launch a game; CLI vs GUI |
 | [GUI.md](GUI.md) | Tray app usage, install wizard, troubleshooting |
+| [WINGET.md](WINGET.md) | Install via `winget` (portable zip manifest) |
 | [TESTING.md](TESTING.md) | **Hand to testers** — download, paths, install/play, feedback |
 | [COMPATIBILITY_MATRIX.md](COMPATIBILITY_MATRIX.md) | Community-tested standalone games |
 | [SANDBOXED_INSTALL.md](SANDBOXED_INSTALL.md) | Untrusted installer workflow |

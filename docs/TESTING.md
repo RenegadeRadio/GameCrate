@@ -5,9 +5,10 @@ Use this guide when handing GameCrate to testers. It covers download, install, p
 ## Download
 
 1. Open [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)
-2. Download **`GameCrate-windows-x64.zip`** from the latest release (currently **v0.4.8+**)
-3. Extract the `GameCrate` folder anywhere (e.g. `C:\Tools\GameCrate`)
-4. Run **`GameCrate.Gui.exe`** as a **normal user** — do not “Run as administrator” unless Windows/UAC asks during the game installer
+2. **winget:** see [WINGET.md](WINGET.md) — `winget install --manifest ...` or `winget install RenegadeRadio.GameCrate` once listed
+3. **Or** download **`GameCrate-windows-x64.zip`** from the latest release (currently **v0.4.8+**)
+4. Extract the `GameCrate` folder anywhere (e.g. `C:\Tools\GameCrate`)
+5. Run **`GameCrate.Gui.exe`** as a **normal user** — do not “Run as administrator” unless Windows/UAC asks during the game installer
 
 ## Where files go (two different things)
 
