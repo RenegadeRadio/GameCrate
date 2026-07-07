@@ -93,6 +93,13 @@ public partial class InstallWindow : Window
             return;
         }
 
+        string? installPathError = InstallPathValidator.Validate(installDir);
+        if (installPathError != null)
+        {
+            MessageBox.Show(installPathError, "Install folder", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
         _installing = true;
         InstallStartButton.IsEnabled = false;
         CancelButton.IsEnabled = false;
@@ -136,7 +143,11 @@ public partial class InstallWindow : Window
         catch (Exception ex)
         {
             InstallStatus.Text = "Install failed.";
-            MessageBox.Show(ex.Message, "Install failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(
+                ex.Message,
+                "Install failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
         finally
         {

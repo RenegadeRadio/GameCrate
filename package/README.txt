@@ -9,8 +9,9 @@ Quick start (GUI)
 
 Install folder tips
 -------------------
-- Use a folder you own, e.g. D:\Games\Sandbox\MyGame or C:\Games\MyGame
-- Avoid C:\Program Files — ACL grants and installers often fail with "Access is denied"
+- Use a folder you own, e.g. D:\Games\Sandbox\MyGame or %LOCALAPPDATA%\Games\MyGame
+- Avoid C:\Install and other drive-root folders — ACL grants often fail there
+- Avoid C:\Program Files — installers and ACL grants fail with "Access is denied"
 - GameCrate data (profiles, saves, reports) lives under %LOCALAPPDATA%\GameCrate\
 
 Quick start (CLI)
