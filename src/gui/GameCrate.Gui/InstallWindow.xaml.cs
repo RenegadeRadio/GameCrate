@@ -115,7 +115,8 @@ public partial class InstallWindow : Window
                 installDir,
                 installer,
                 virtualizeAppData: VirtualAppDataCheck.IsChecked == true,
-                allowNetwork: NetworkCheck.IsChecked == true);
+                allowNetwork: NetworkCheck.IsChecked == true,
+                strictOutsideWrites: StrictOutsideWritesCheck.IsChecked == true);
 
             InstallProgress.IsIndeterminate = false;
             InstallProgress.Visibility = Visibility.Collapsed;

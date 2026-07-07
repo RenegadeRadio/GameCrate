@@ -487,6 +487,9 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         if (PathUtils::IsUnderAnyRoot(file.path, allowedRoots)) {
             continue;
         }
+        if (FootprintScanner::IsBenignOutsidePath(file.path)) {
+            continue;
+        }
         result.outsideWrites.push_back(file.path);
         if (FootprintScanner::IsSuspiciousOutsidePath(file.path)) {
             result.suspiciousOutsideWrites.push_back(file.path);
@@ -524,15 +527,15 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
         result.success = true;
     }
 
-    if (!result.outsideWrites.empty() || !result.suspiciousRegistryChanges.empty()) {
+    if (!result.suspiciousOutsideWrites.empty() || !result.suspiciousRegistryChanges.empty() ||
+        (normalized.failOnOutsideWrites && !result.outsideWrites.empty())) {
         result.success = false;
-        if (!result.outsideWrites.empty()) {
+        if (normalized.failOnOutsideWrites && !result.outsideWrites.empty()) {
             result.message = L"Detected file writes outside the sandbox footprint.";
+        } else if (!result.suspiciousOutsideWrites.empty()) {
+            result.message = L"Detected suspicious file writes outside the sandbox footprint.";
         } else {
             result.message = L"Detected suspicious registry persistence keys (Run/RunOnce).";
-        }
-        if (!normalized.failOnOutsideWrites) {
-            result.success = profile.executable.empty() ? false : true;
         }
     }
 
@@ -550,7 +553,9 @@ InstallResult InstallManager::Run(const InstallOptions& options) {
     WriteReport(result, normalized);
 
     if (result.success) {
-        result.message = L"Install completed successfully.";
+        result.message = result.outsideWrites.empty()
+            ? L"Install completed successfully."
+            : L"Install completed successfully. Review the install report for recorded outside writes.";
     }
 
     return result;

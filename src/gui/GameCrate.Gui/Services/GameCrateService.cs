@@ -90,6 +90,7 @@ public sealed class GameCrateService
         string installer,
         bool virtualizeAppData = true,
         bool allowNetwork = false,
+        bool strictOutsideWrites = false,
         CancellationToken cancellationToken = default)
     {
         List<string> args =
@@ -109,6 +110,11 @@ public sealed class GameCrateService
         if (allowNetwork)
         {
             args.Add("--network");
+        }
+
+        if (strictOutsideWrites)
+        {
+            args.Add("--strict-outside-writes");
         }
 
         return RunAsync(cancellationToken, args.ToArray());

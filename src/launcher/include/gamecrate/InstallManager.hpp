@@ -28,7 +28,7 @@ struct InstallOptions {
     bool lpacCom = false;
     bool gpu = true;
     bool virtualizeAppData = true;
-    bool failOnOutsideWrites = true;
+    bool failOnOutsideWrites = false;
     bool tightenAclsAfter = true;
 };
 

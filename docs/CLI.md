@@ -27,7 +27,8 @@ gamecrate install `
 | `--installer-args` | empty | Arguments passed to the installer |
 | `--executable` | auto-detect | Game `.exe` after install |
 | `--save-dir` | `%LOCALAPPDATA%\GameCrate\<id>\saves` | Isolated save directory |
-| `--allow-outside-writes` | off | Warn on outside writes but do not fail |
+| `--allow-outside-writes` | on | Do not fail on benign outside writes (Start Menu shortcuts, icon caches) |
+| `--strict-outside-writes` | off | Fail if installer writes outside install/save dirs |
 | `--keep-install-writable` | off | Skip post-install ACL tightening |
 | `--network` | off | Allow network during install |
 | `--no-registry` | off | Do not grant `registryRead` |
