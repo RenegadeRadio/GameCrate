@@ -72,7 +72,7 @@ gamecrate destroy-profile --profile my-game --wipe-data
 
 - Deletes the profile JSON and AppContainer registration
 - Revokes filesystem ACL ACEs on install, save, and extra granted paths
-- `--wipe-data` removes `%ProgramData%\GameCrate\<id>\` (saves, virtual AppData, reports)
+- `--wipe-data` removes `%LOCALAPPDATA%\GameCrate\<id>\` (saves, virtual AppData, reports)
 
 Does **not** delete game files in `installDir` — remove those manually if needed.
 

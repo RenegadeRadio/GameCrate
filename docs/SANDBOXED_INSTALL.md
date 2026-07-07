@@ -1,6 +1,8 @@
-# Sandboxed Install (v0.2)
+# Sandboxed Install (v0.2+)
 
-GameCrate v0.2 adds **`gamecrate install`** — run an untrusted installer inside LPAC, scan what it wrote, and block persistence outside the sandbox.
+GameCrate **`gamecrate install`** runs an installer under **monitoring** (footprint scan + install report), then sandboxes the game on **Play** via LPAC.
+
+> **v0.4.5+:** Install runs as a normal child process (UAC allowed) so Inno Setup and similar installers work. **Play** still uses AppContainer. See [SCOPE.md](SCOPE.md).
 
 ## Command
 
@@ -30,9 +32,8 @@ sequenceDiagram
 
     User->>GameCrate: install --installer setup.exe
     GameCrate->>FS: Snapshot allowed + watch paths
-    GameCrate->>LPAC: Launch installer (network off by default)
-    LPAC->>FS: Writes only where ACLs allow
-    LPAC-->>GameCrate: Installer exits
+    GameCrate->>GameCrate: Launch installer (monitored, UAC ok)
+    Note over GameCrate,FS: Installer writes; footprint diffed after exit
     GameCrate->>FS: Snapshot again + diff
     GameCrate->>GameCrate: Detect game .exe, tighten ACLs
     GameCrate-->>User: Report + profile ready
@@ -40,7 +41,7 @@ sequenceDiagram
 
 ### 1. Install-phase ACLs
 
-The install directory gets **read/write/execute** so the installer can extract files. Save dir and `%ProgramData%\GameCrate\<id>\` are also writable.
+The install directory gets **read/write/execute** so the installer can extract files. Save dir and `%LOCALAPPDATA%\GameCrate\<id>\` are also writable (for GameCrate metadata and virtual AppData).
 
 ### 2. Footprint snapshots
 
@@ -48,7 +49,7 @@ The install directory gets **read/write/execute** so the installer can extract f
 
 - `--install-dir`
 - Save directory
-- `%ProgramData%\GameCrate\<id>\`
+- `%LOCALAPPDATA%\GameCrate\<id>\`
 
 **Watch paths** (writes flagged as violations):
 
@@ -58,9 +59,11 @@ The install directory gets **read/write/execute** so the installer can extract f
 - Start Menu / Programs
 - `%ProgramData%` (outside the GameCrate profile subtree)
 
-### 3. Sandboxed installer launch
+### 3. Monitored installer launch
 
-The installer runs in LPAC with **network disabled by default** to reduce install-time phone-home. Use `--network` only if the installer requires it.
+The installer runs as a **monitored child process** (not LPAC). Approve **UAC** if prompted. Network is **disabled by default** during install (`--network` to enable).
+
+GameCrate auto-passes `/DIR="<install-dir>"` to Inno-compatible installers when you do not set `--installer-args`.
 
 ### 4. Post-install analysis
 
@@ -68,7 +71,7 @@ The installer runs in LPAC with **network disabled by default** to reduce instal
 - Flags any new files under watch paths
 - Marks **suspicious** paths (Startup, System32, Tasks, etc.)
 - Auto-detects the game `.exe` (skips `setup.exe`, `unins*.exe`, etc.)
-- Writes `%ProgramData%\GameCrate\<id>\install-report.json`
+- Writes `%LOCALAPPDATA%\GameCrate\<id>\install-report.json`
 
 ### 5. ACL tightening
 
@@ -80,7 +83,8 @@ By default, install dir ACLs are tightened to **read/execute** after a successfu
 |---|---|---|
 | `--installer-args` | empty | Arguments for the installer |
 | `--executable` | auto-detect | Skip executable detection |
-| `--allow-outside-writes` | off | Warn but don't fail on outside writes |
+| `--allow-outside-writes` | on | Do not fail on benign outside writes (default since v0.4.6) |
+| `--strict-outside-writes` | off | Fail on any outside write |
 | `--keep-install-writable` | off | Keep install dir writable after install |
 | `--network` | off | Allow network during install |
 | `--save-dir` | auto | Override save directory |

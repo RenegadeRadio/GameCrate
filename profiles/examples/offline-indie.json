@@ -8,10 +8,10 @@
   "installDir": "D:\\Games\\ExampleGame",
   "executable": "D:\\Games\\ExampleGame\\Game.exe",
   "arguments": "",
-  "saveDir": "C:\\ProgramData\\GameCrate\\example-offline-indie\\saves",
+  "saveDir": "C:\\Users\\YourName\\AppData\\Local\\GameCrate\\example-offline-indie\\saves",
   "writablePaths": [
     "D:\\Games\\ExampleGame",
-    "C:\\ProgramData\\GameCrate\\example-offline-indie\\saves"
+    "C:\\Users\\YourName\\AppData\\Local\\GameCrate\\example-offline-indie\\saves"
   ],
   "readablePaths": [],
   "network": false,

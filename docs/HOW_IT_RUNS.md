@@ -30,7 +30,7 @@ You  →  gamecrate.exe launch --profile my-game  →  game.exe (sandboxed)
 
 ### What happens on `launch`
 
-1. **Read profile** — JSON from `%ProgramData%\GameCrate\profiles\<id>.json`
+1. **Read profile** — JSON from `%LOCALAPPDATA%\GameCrate\profiles\<id>.json`
 2. **Apply ACLs** — add filesystem allow rules for the game's AppContainer SID
 3. **CreateProcess (LPAC)** — spawn `game.exe` with a restricted token + capability SIDs
 4. **Wait** — `gamecrate.exe` blocks until the game exits (unless `--no-wait`)
@@ -81,8 +81,8 @@ This is closer to **"run this exe in a sandbox"** than to Docker Desktop running
 |---|---|
 | `gamecrate.exe` | CLI launcher — profiles, ACL setup, spawn game |
 | `GameCrate.Gui.exe` | Tray GUI — wraps CLI for install/play/report |
-| `%ProgramData%\GameCrate\profiles\` | One JSON file per game profile |
-| `%ProgramData%\GameCrate\<id>\saves\` | Isolated save data per profile |
+| `%LOCALAPPDATA%\GameCrate\profiles\` | One JSON file per game profile |
+| `%LOCALAPPDATA%\GameCrate\<id>\saves\` | Isolated save data per profile |
 | Your `installDir` | Game files (e.g. `D:\Sandbox\MyGame\`) |
 
 No kernel driver. No Windows service. Uninstall = delete those folders + `gamecrate.exe`.
@@ -116,8 +116,7 @@ Double-clicking the shortcut opens the game sandboxed. GameCrate exits immediate
 |---|---|
 | **Windows service** | Auto-apply ACLs on boot, central policy |
 | **Shell integration** | Right-click → "Run with GameCrate" |
-| **Steam/Epic integration** (v0.5) | Launcher-aware profile creation |
-| **Kernel minifilter** (v1.0) | Deny-by-default on all volumes (Sandboxie-style) |
+| **Kernel minifilter** | Deny-by-default on all volumes (Sandboxie-style) |
 
 v0.4 keeps the control plane explicit: CLI + optional GUI tray, no hidden background layer.
 

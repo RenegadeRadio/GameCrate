@@ -10,11 +10,11 @@
 - Keep per-game save data isolated under `%LOCALAPPDATA%\GameCrate\<profile>\`
 - Install games into a sandbox so installers cannot spray files across the system
 
-## What this does **not** solve (yet)
+## What this does **not** solve
 
 - Kernel anti-cheat (EAC, BattlEye, Vanguard) — incompatible with LPAC sandboxing
 - Perfect DRM compatibility
-- Steam/Epic launcher automation (planned post-v0.4)
+- Steam, Epic, GOG, and other **platform launchers** — they manage their own games, updates, and DRM; use those clients instead ([SCOPE.md](docs/SCOPE.md))
 
 See [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) for tiered compatibility guidance.
 
@@ -53,7 +53,7 @@ There is no kernel driver and no always-on service.
 
 **Easiest way to run GameCrate in a VM** — no build tools required.
 
-1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.6`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
+1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.7`** (latest stable) or **`v0.4-latest`** (rolling build from `main`)
 2. Download **`GameCrate-windows-x64.zip`**
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)
@@ -199,6 +199,7 @@ See **[docs/CLI.md](docs/CLI.md)** for full flags, JSON output, and install repo
 | [docs/SANDBOXED_INSTALL.md](docs/SANDBOXED_INSTALL.md) | Untrusted installer workflow |
 | [docs/VIRTUAL_STORAGE.md](docs/VIRTUAL_STORAGE.md) | AppData redirect, registry scan, teardown |
 | [docs/GUI.md](docs/GUI.md) | Tray application |
+| [docs/SCOPE.md](docs/SCOPE.md) | What GameCrate is / is not (no store launcher integration) |
 | [docs/TESTING.md](docs/TESTING.md) | Tester handout — install paths, feedback |
 | [docs/GAME_COMPATIBILITY.md](docs/GAME_COMPATIBILITY.md) | Game tiers and tuning |
 | [profiles/schema.json](profiles/schema.json) | Profile JSON schema |
@@ -226,8 +227,8 @@ tools/          PowerShell setup helpers
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
 - [x] v0.2 — Sandboxed installer + install footprint scanner
 - [x] v0.3 — AppData redirection, registry install scan, destroy-profile
-- [x] v0.4 — WPF tray GUI wrapping the CLI
-- [ ] v0.5 — Steam/Epic launcher integration
+- [x] v0.4 — WPF tray GUI, monitored install, GitHub Releases (v0.4.6)
+- [ ] Future — shell integration, optional kernel minifilter (see [ARCHITECTURE.md](docs/ARCHITECTURE.md))
 
 ## License
 

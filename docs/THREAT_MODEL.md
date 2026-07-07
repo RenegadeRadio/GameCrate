@@ -58,6 +58,6 @@ AppContainer escapes are rare but historically possible (patch Windows promptly)
 
 1. Create one profile per game — never share profiles across titles.
 2. Keep `network: false` for offline single-player games.
-3. Point saves to `%ProgramData%\GameCrate\<profile>\saves`, not `Documents`.
+3. Point saves to `%LOCALAPPDATA%\GameCrate\<profile>\saves`, not `Documents`.
 4. Review `readablePaths` — never add `C:\Users` or drive roots.
 5. Run GameCrate launcher from a standard user account, not Administrator.

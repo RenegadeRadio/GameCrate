@@ -50,7 +50,7 @@ AppContainer processes are **denied by default** on paths that lack an ACE for t
 1. Derives the AppContainer SID from the profile moniker.
 2. Applies **allow** ACEs on:
    - Game install root (read + execute; write only if the game patches itself)
-   - Dedicated save/data directory under `%ProgramData%\GameCrate\<profile>\`
+   - Dedicated save/data directory under `%LOCALAPPDATA%\GameCrate\<profile>\`
    - Optional extra paths declared in the profile (mods, shared assets)
 3. Does **not** grant access to user Documents, Desktop, other game folders, etc.
 
@@ -71,14 +71,14 @@ Capabilities are declared in the profile JSON and passed to `CreateAppContainerP
 
 ### Layer 4: Virtualized storage (v0.3)
 
-GameCrate redirects `%APPDATA%`, `%LOCALAPPDATA%`, and `%TEMP%` into `%ProgramData%\GameCrate\<id>\virtual\` via a custom environment block at launch/install. Install-time registry snapshots detect persistence keys in `HKCU`. See [VIRTUAL_STORAGE.md](VIRTUAL_STORAGE.md).
+GameCrate redirects `%APPDATA%`, `%LOCALAPPDATA%`, and `%TEMP%` into `%LOCALAPPDATA%\GameCrate\<id>\virtual\` via a custom environment block at launch/install. Install-time registry snapshots detect persistence keys in `HKCU`. See [VIRTUAL_STORAGE.md](VIRTUAL_STORAGE.md).
 
 ## Component layout
 
 ```
 gamecrate.exe          CLI entry point
 GameCrate.Gui.exe      WPF tray app — wraps CLI for install/play/report
-├── ProfileStore     Load/save JSON profiles under %ProgramData%\GameCrate\profiles\
+├── ProfileStore     Load/save JSON profiles under %LOCALAPPDATA%\GameCrate\profiles\
 ├── AclManager       Apply/remove filesystem ACEs for AppContainer SID
 └── AppContainerLauncher
                      CreateAppContainerProfile → CreateProcess with LPAC attributes
@@ -98,7 +98,7 @@ gamecrate create-profile `
   --executable "D:\Games\HollowKnight\hollow_knight.exe"
 ```
 
-Creates `%ProgramData%\GameCrate\profiles\hollow-knight.json` and registers the AppContainer moniker.
+Creates `%LOCALAPPDATA%\GameCrate\profiles\hollow-knight.json` and registers the AppContainer moniker.
 
 ### 2. Install game (sandboxed)
 
@@ -126,7 +126,7 @@ Spawns the game's executable with LPAC + profile capabilities. Child processes i
 gamecrate destroy-profile --profile hollow-knight --wipe-data
 ```
 
-Removes AppContainer registration, revokes ACL ACEs on granted paths, deletes the profile JSON, and optionally wipes `%ProgramData%\GameCrate\<id>\`. Does **not** delete game files in `installDir`.
+Removes AppContainer registration, revokes ACL ACEs on granted paths, deletes the profile JSON, and optionally wipes `%LOCALAPPDATA%\GameCrate\<id>\`. Does **not** delete game files in `installDir`.
 
 ## Threat model (summary)
 
@@ -152,9 +152,8 @@ See [THREAT_MODEL.md](THREAT_MODEL.md) for detail.
 | **v0.1** | LPAC launcher, JSON profiles, ACL grants, CLI |
 | **v0.2** | Sandboxed installer + install footprint scanner |
 | **v0.3** | AppData redirection + registry install scan + destroy-profile |
-| **v0.4** | WPF tray GUI wrapping the CLI |
-| v0.5 | Steam/Epic launcher integration |
-| v1.0 | Optional kernel minifilter for deny-by-default on all volumes |
+| **v0.4** | WPF GUI, monitored install, GitHub Releases |
+| Future | Shell integration, optional kernel minifilter (see Sandboxie-style deny-by-default) |
 
 ## References
 
