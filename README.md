@@ -227,7 +227,7 @@ tools/          PowerShell setup helpers
 - [x] v0.1 — LPAC launcher, profiles, ACL grants, CLI
 - [x] v0.2 — Sandboxed installer + install footprint scanner
 - [x] v0.3 — AppData redirection, registry install scan, destroy-profile
-- [x] v0.4 — WPF tray GUI, monitored install, GitHub Releases (v0.4.6)
+- [x] v0.4 — WPF tray GUI, monitored install, GitHub Releases (v0.4.7)
 - [ ] Future — shell integration, optional kernel minifilter (see [ARCHITECTURE.md](docs/ARCHITECTURE.md))
 
 ## License
