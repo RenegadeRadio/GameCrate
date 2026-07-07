@@ -216,11 +216,81 @@ DWORD AppContainerLauncher::LaunchProcess(
     return result;
 }
 
+DWORD AppContainerLauncher::LaunchMonitored(
+    const LaunchOptions& options,
+    DWORD& outProcessId,
+    DWORD& outExitCode) {
+    STARTUPINFOW startupInfo{};
+    startupInfo.cb = sizeof(startupInfo);
+
+    PROCESS_INFORMATION procInfo{};
+    std::wstring commandLine = options.arguments.empty()
+        ? L"\"" + options.executable + L"\""
+        : L"\"" + options.executable + L"\" " + options.arguments;
+
+    const wchar_t* workingDirectory =
+        options.workingDirectory.empty() ? nullptr : options.workingDirectory.c_str();
+
+    if (!CreateProcessW(
+            nullptr,
+            commandLine.data(),
+            nullptr,
+            nullptr,
+            FALSE,
+            CREATE_UNICODE_ENVIRONMENT,
+            options.environmentBlock ? options.environmentBlock.get() : nullptr,
+            workingDirectory,
+            &startupInfo,
+            &procInfo)) {
+        return GetLastError();
+    }
+
+    outProcessId = procInfo.dwProcessId;
+
+    DWORD result = ERROR_SUCCESS;
+    if (options.waitForExit) {
+        WaitForSingleObject(procInfo.hProcess, INFINITE);
+        if (!GetExitCodeProcess(procInfo.hProcess, &outExitCode)) {
+            result = GetLastError();
+        } else {
+            result = outExitCode;
+        }
+    }
+
+    CloseHandle(procInfo.hProcess);
+    CloseHandle(procInfo.hThread);
+    return result;
+}
+
 LaunchResult AppContainerLauncher::Launch(const LaunchOptions& options) {
     LaunchResult launchResult;
 
-    if (options.moniker.empty() || options.executable.empty()) {
-        launchResult.message = L"Moniker and executable are required.";
+    if (options.executable.empty()) {
+        launchResult.message = L"Executable is required.";
+        launchResult.errorCode = ERROR_INVALID_PARAMETER;
+        return launchResult;
+    }
+
+    if (!options.useAppContainer) {
+        DWORD exitCode = 0;
+        DWORD processId = 0;
+        const DWORD launchError = LaunchMonitored(options, processId, exitCode);
+
+        launchResult.processId = processId;
+        launchResult.exitCode = exitCode;
+        launchResult.errorCode = launchError;
+        launchResult.success = launchError == ERROR_SUCCESS || launchError == STILL_ACTIVE;
+
+        if (!launchResult.success) {
+            launchResult.message =
+                L"Installer process failed: " + FormatWin32Error(launchError) + L" (" +
+                std::to_wstring(launchError) + L")";
+        }
+        return launchResult;
+    }
+
+    if (options.moniker.empty()) {
+        launchResult.message = L"Moniker is required for AppContainer launch.";
         launchResult.errorCode = ERROR_INVALID_PARAMETER;
         return launchResult;
     }

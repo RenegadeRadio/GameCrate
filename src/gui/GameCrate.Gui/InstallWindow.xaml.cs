@@ -105,7 +105,7 @@ public partial class InstallWindow : Window
         CancelButton.IsEnabled = false;
         InstallProgress.Visibility = Visibility.Visible;
         InstallProgress.IsIndeterminate = true;
-        InstallStatus.Text = "Running sandboxed installer — this may take several minutes...";
+        InstallStatus.Text = "Running installer (monitored) — approve UAC if prompted...";
 
         try
         {
