@@ -56,15 +56,12 @@ There is no kernel driver and no always-on service.
 ### winget (Windows 10 1809+)
 
 ```powershell
-# From repo manifest (works today):
 git clone https://github.com/RenegadeRadio/GameCrate.git
-winget install --manifest .\GameCrate\winget\manifests\r\RenegadeRadio\GameCrate\0.4.8
-
-# After listing in microsoft/winget-pkgs:
-winget install RenegadeRadio.GameCrate
+cd GameCrate
+winget install --manifest .\winget\manifests\r\RenegadeRadio\GameCrate\0.4.8
 ```
 
-See [docs/WINGET.md](docs/WINGET.md) for details and winget-pkgs submission.
+See [docs/WINGET.md](docs/WINGET.md).
 
 ### Manual zip
 

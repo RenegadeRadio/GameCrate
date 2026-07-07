@@ -4,9 +4,8 @@ All notable user-facing changes. Versions match [GitHub Releases](https://github
 
 ## Unreleased
 
-- **winget** manifests (`RenegadeRadio.GameCrate`) for portable zip install
+- **winget** manifests (`RenegadeRadio.GameCrate`) for portable zip install via local `--manifest`
 - `docs/WINGET.md`, `tools/update-winget-manifest.ps1`, CI `winget validate`
-- Optional `WINGET_TOKEN` workflow to open winget-pkgs PR on release
 
 ## v0.4.8
 
