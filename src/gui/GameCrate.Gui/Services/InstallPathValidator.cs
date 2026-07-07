@@ -1,3 +1,5 @@
+using System.IO;
+
 namespace GameCrate.Gui.Services;
 
 internal static class InstallPathValidator
