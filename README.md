@@ -53,7 +53,7 @@ There is no kernel driver and no always-on service.
 
 **Easiest way to run GameCrate in a VM** — no build tools required.
 
-1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** (latest: `v0.4-latest` rolling build from `main`)
+1. Open **[GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases)** — use **`v0.4.0`** (stable) or **`v0.4-latest`** (rolling build from `main`)
 2. Download **`GameCrate-windows-x64.zip`**
 3. Extract the `GameCrate` folder to your VM (e.g. `C:\Tools\GameCrate`)
 4. Run **`GameCrate.Gui.exe`** (GUI) or **`gamecrate.exe`** (CLI)

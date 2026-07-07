@@ -38,4 +38,5 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 - Example profile: [`profiles/examples/offline-indie.json`](../profiles/examples/offline-indie.json)
 - PowerShell helpers: [`tools/`](../tools/)
 - CI workflow: [`.github/workflows/build.yml`](../.github/workflows/build.yml)
-- Windows download: [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) (`GameCrate-windows-x64.zip`)
+- Windows download: [GitHub Releases](https://github.com/RenegadeRadio/GameCrate/releases) (`GameCrate-windows-x64.zip`; latest stable: `v0.4.0`)
+- Cursor Cloud agents: [`AGENTS.md`](../AGENTS.md) (Windows-only build notes)
