@@ -17,6 +17,7 @@ GameCrate runs Windows games inside a Less-Privileged AppContainer (LPAC) with e
 
 | Doc | When to read |
 |---|---|
+| [DEVELOPMENT.md](DEVELOPMENT.md) | **Windows dev** — isolated `.dev-data`, build loop |
 | [SCOPE.md](SCOPE.md) | **Start here** — standalone games only; not Steam/Epic |
 | [CLI.md](CLI.md) | Full command reference, flags, JSON output, install reports |
 | [HOW_IT_RUNS.md](HOW_IT_RUNS.md) | What runs when you launch a game; CLI vs GUI |

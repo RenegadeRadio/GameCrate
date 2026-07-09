@@ -1,6 +1,9 @@
 build/
 out/
 dist/
+.dev-data/*
+!.dev-data/README.md
+build/dev-package/
 .vs/
 *.user
 *.suo

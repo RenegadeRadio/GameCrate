@@ -80,6 +80,8 @@ jobs:
           Get-Item $exe | Format-List FullName, Length, LastWriteTime
           & $exe list-profiles
 
+          $env:GAMECRATE_DATA_ROOT = Join-Path $env:TEMP "gamecrate-ci-data-$PID"
+          New-Item -ItemType Directory -Force -Path $env:GAMECRATE_DATA_ROOT | Out-Null
           $smokeId = "ci-smoke-$PID"
           $smokeDir = Join-Path $env:TEMP "gamecrate-smoke-$PID"
           New-Item -ItemType Directory -Force -Path $smokeDir | Out-Null

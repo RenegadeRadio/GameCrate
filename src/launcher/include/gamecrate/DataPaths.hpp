@@ -6,7 +6,7 @@ namespace gamecrate {
 
 class DataPaths {
 public:
-    // %LOCALAPPDATA%\GameCrate — per-user, no admin required.
+    // %LOCALAPPDATA%\GameCrate by default, or GAMECRATE_DATA_ROOT when set (dev isolation).
     static std::wstring Root();
     static std::wstring ProfilesRoot();
     static std::wstring ProfileDataRoot(const std::wstring& profileId);

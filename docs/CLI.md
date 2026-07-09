@@ -2,7 +2,9 @@
 
 Binary: **`gamecrate.exe`**. Run `gamecrate` with no arguments to print usage.
 
-Profiles are stored at `%LOCALAPPDATA%\GameCrate\profiles\<id>.json`. Per-profile data lives under `%LOCALAPPDATA%\GameCrate\<id>\`.
+Profiles are stored at `%LOCALAPPDATA%\GameCrate\profiles\<id>.json` by default. Per-profile data lives under `%LOCALAPPDATA%\GameCrate\<id>\`.
+
+**Development:** set `GAMECRATE_DATA_ROOT` (or run `tools/Enter-GameCrateDev.ps1`) to keep data under `<repo>\.dev-data\` instead. See [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ## Commands
 
