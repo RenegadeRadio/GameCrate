@@ -4,8 +4,8 @@ All notable user-facing changes. Versions match [GitHub Releases](https://github
 
 ## Unreleased
 
-- **winget** manifests (`RenegadeRadio.GameCrate`) for portable zip install via local `--manifest`
-- `docs/WINGET.md`, `tools/update-winget-manifest.ps1`, CI `winget validate`
+- **Dev environment:** `GAMECRATE_DATA_ROOT` + `tools/Enter-GameCrateDev.ps1` (isolated `.dev-data/`)
+- `docs/DEVELOPMENT.md`, Linux devcontainer for profile validation only
 
 ## v0.4.8
 
@@ -15,6 +15,8 @@ All notable user-facing changes. Versions match [GitHub Releases](https://github
 - GUI: summarized install report dialog; About shows version
 - CI: validate profile JSON against schema; smoke-test `create-profile` / `destroy-profile`
 - `CHANGELOG.md` added
+- **winget** manifests (`RenegadeRadio.GameCrate`) for portable zip install via local `--manifest`
+- `docs/WINGET.md`, `tools/update-winget-manifest.ps1`, CI `winget validate`
 
 ## v0.4.7
 

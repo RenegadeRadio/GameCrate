@@ -133,6 +133,17 @@ See Option A above and [docs/CLI.md](docs/CLI.md#build-output-paths).
 
 Cross-compiling is not supported — AppContainer APIs exist only on Windows.
 
+### Develop without cluttering AppData
+
+Use the **project-local dev environment** so profiles, saves, and test game installs stay under `.dev-data\` in the repo:
+
+```powershell
+.\tools\Enter-GameCrateDev.ps1 -Build -PublishGui
+# Opens an isolated shell; run GameCrate.Gui.exe from build\dev-package\
+```
+
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for `GAMECRATE_DATA_ROOT`, reset steps, and the Linux devcontainer (validation only).
+
 ## Quick start
 
 ### Sandboxed install (recommended for untrusted games)

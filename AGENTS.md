@@ -37,6 +37,6 @@ setup gap. Do not attempt to "fix" the environment to build it on Linux.
 
 - Product name: **GameCrate** (`gamecrate.exe`, `GameCrate.Gui.exe`). Formerly WinDoze.
 - Product scope: **standalone/portable games only** — not Steam/Epic/GOG integration. See `docs/SCOPE.md`.
-- Data paths: `%LOCALAPPDATA%\GameCrate\`.
+- Data paths: `%LOCALAPPDATA%\GameCrate\` (or `GAMECRATE_DATA_ROOT` for dev — see `docs/DEVELOPMENT.md`, `tools/Enter-GameCrateDev.ps1`).
 - Feature branches: `cursor/<descriptive-name>-ae40`.
 - Default branch: `main`.

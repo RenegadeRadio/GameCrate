@@ -1,0 +1,20 @@
+{
+  "name": "GameCrate (profile validation)",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.powershell",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y python3-pip && pip3 install jsonschema && python3 tools/validate-profiles.py",
+  "remoteUser": "vscode",
+  "hostRequirements": {
+    "cpus": 2
+  }
+}
